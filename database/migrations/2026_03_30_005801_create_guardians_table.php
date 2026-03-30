@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRescuersTable extends Migration
+class CreateGuardiansTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,22 +13,19 @@ class CreateRescuersTable extends Migration
      */
     public function up()
     {
-        Schema::create('rescuers', function (Blueprint $table) {
+        Schema::create('guardians', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('type')->nullable();
-            $table->string('gender')->nullable();;
+            $table->string('gender');
             $table->string('mobile')->nullable();
             $table->string('language')->nullable();
             $table->date('birthdate')->nullable();
-            $table->string('station_location')->nullable();
-            $table->string('latitude')->nullable();
-            $table->string('longitude')->nullable();
-            $table->string('contact')->nullable();
-            $table->string('is_active')->nullable();
+            $table->string('address')->nullable();
             $table->string('is_id_verified')->nullable();
-            $table->string('valid_id_path')->nullable();
+            $table->string('gesture_data')->nullable();
+            $table->string('medical_info')->nullable();
             $table->string('status')->default('pending');
             $table->timestamps();
         });
@@ -41,6 +38,6 @@ class CreateRescuersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rescuers');
+        Schema::dropIfExists('guardians');
     }
 }

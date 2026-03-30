@@ -54,8 +54,36 @@
         }}"
     >
       <i class="fas fa-users mr-2 {{ !request()->routeIs('users.*') ? 'group-hover:scale-110 inline-block transition-transform' : '' }}"></i>
-      Users
+      Administrator
     </a>
+
+     <!-- Rescuers Pending Link -->
+    <a 
+      href="{{ route('rescuers-pending.index') }}" 
+      class="rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 group
+        {{ request()->routeIs('rescuers-pending.*') ? 
+          'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md hover:shadow-lg hover:from-indigo-700 hover:to-indigo-800' : 
+          'text-gray-200 hover:bg-white/10 hover:text-white' 
+        }}"
+    >
+      <i class="fas fa-exclamation-triangle mr-2 {{ !request()->routeIs('rescuers-pending.*') ? 'group-hover:scale-110 inline-block transition-transform' : '' }}"></i>
+      Rescuers Pending
+    </a> 
+
+       <!-- Rescuers  -->
+    <a 
+      href="{{ route('rescuers.index') }}" 
+      class="rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 group
+        {{ request()->routeIs('rescuers.*') ? 
+          'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md hover:shadow-lg hover:from-indigo-700 hover:to-indigo-800' : 
+          'text-gray-200 hover:bg-white/10 hover:text-white' 
+        }}"
+    >
+      <i class="fas fa-exclamation-triangle mr-2 {{ !request()->routeIs('rescuers.*') ? 'group-hover:scale-110 inline-block transition-transform' : '' }}"></i>
+      Rescuers 
+    </a> 
+
+
     
     <!-- Incidents Link -->
     <a 

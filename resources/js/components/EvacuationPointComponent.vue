@@ -212,8 +212,7 @@ export default {
         });
         return;
       }
-
-      // ✅ SWEETALERT CONFIRM (FIXED)
+ 
       window.Swal.fire({
         title: "Are you sure?",
         text: "Save this evacuation point?",

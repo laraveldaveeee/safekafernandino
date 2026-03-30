@@ -16,6 +16,7 @@ class CreateIncidentsTable extends Migration
         Schema::create('incidents', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id')->default(0);
+            $table->integer('guardian_id')->default(0);
             $table->integer('rescuer_id')->default(0);
             $table->integer('child_id')->default(0);
             $table->string('type');

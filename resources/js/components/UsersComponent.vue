@@ -4,7 +4,7 @@
        <div class="lg:col-span-1 bg-white shadow-lg rounded-xl p-6">
 
         <h2 class="text-lg font-bold text-gray-800 mb-4">
-          Add User
+          Add Admin
         </h2>
         <form @submit.prevent="storeUser" class="space-y-4">
           <!-- NAME -->
@@ -41,7 +41,7 @@
             type="submit"
             class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
           >
-            Save User
+            Submit
           </button>
 
         </form>
@@ -61,8 +61,8 @@
             </svg>
           </div>
           <div>
-            <h3 class="text-lg font-semibold text-gray-900">User Management</h3>
-            <p class="text-sm text-gray-500 mt-0.5">Manage and view all registered users in the system</p>
+            <h3 class="text-lg font-semibold text-gray-900">Administrator Management</h3>
+            <p class="text-sm text-gray-500 mt-0.5">Manage and view all registered admins in the system</p>
           </div>
         </div>
 

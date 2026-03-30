@@ -4,9 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Rescuer extends Model
+class Parent extends Model
 {
-    protected $guarded = [];
-
     
 }

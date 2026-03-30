@@ -15,14 +15,14 @@
           </svg>
         </div>
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Administrator</h1>
-          <p class="text-sm text-gray-500">List of all registered administrators</p>
+          <h1 class="text-2xl font-bold text-gray-800">Rescuers Pending</h1>
+          <p class="text-sm text-gray-500">List of all pending rescuers</p>
         </div>
       </div>
  
     </div>
     <div id="app">
-        <users></users> 
+        <rescuers-pending></rescuers-pending> 
     </div>
 
   </div>

@@ -15,7 +15,7 @@ class CreateChildrensTable extends Migration
     {
         Schema::create('childrens', function (Blueprint $table) {
             $table->id();
-            $table->integer('parent_id')->default(0); 
+            $table->integer('guardian_id')->default(0); 
             $table->string('name');
             $table->string('email')->unique();
             $table->string('gender');

@@ -9,6 +9,17 @@ Route::patch('/users/{user}', 'API\UsersController@update');
 Route::get('/users/{user}/show', 'API\UsersController@show');
 Route::delete('/users/{user}', 'API\UsersController@destroy');
 
+//Pending Rescuer
+Route::get('/rescuers-pending', 'API\PendingRescuerController@index');
+Route::get('/rescuers-pending/{rescuer}/manage', 'API\PendingRescuerController@manage');
+
+Route::patch('/rescuers/{rescuer}/approve', 'API\PendingRescuerController@approve');
+Route::patch('/rescuers/{rescuer}/decline', 'API\PendingRescuerController@decline');
+
+
+Route::get('/rescuers', 'API\RescuersController@index');
+Route::get('/rescuers/{rescuer}/view', 'API\RescuersController@show');
+
 //Incidents
 
 Route::get('/incidents', 'API\IncidentsController@index');
@@ -20,6 +31,9 @@ Route::post('/evacuation-points', 'API\EvacuationPointsController@store');
 
 //Children
 Route::get('/childrens', 'API\ChildrensController@index');
+
+//Parent 
+Route::get('/parents', 'API\GuardiansController@index');
 
 // Route::middleware('auth:sanctum')->group(function () {
 // });

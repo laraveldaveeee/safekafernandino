@@ -80,6 +80,11 @@ export default {
 
   mounted() {
     this.loadGoogleMaps();
+
+    // 🔥 GLOBAL DELETE FUNCTION
+    window.deleteEvacuationPoint = (id) => {
+      this.deleteEvacuationPoint(id);
+    };
   },
 
   methods: {
@@ -160,6 +165,7 @@ export default {
       this.markers = [];
 
       this.evacuationPoints.forEach(point => {
+
         const marker = new google.maps.Marker({
           position: {
             lat: parseFloat(point.latitude),
@@ -170,8 +176,21 @@ export default {
           icon: this.getIcon(point.status)
         });
 
+        const content = `
+          <div style="min-width:150px">
+            <strong>${point.name}</strong><br/>
+            Status: ${point.status}<br/><br/>
+            <button 
+              onclick="window.deleteEvacuationPoint(${point.id})"
+              style="background:red;color:white;padding:5px 10px;border:none;border-radius:5px;cursor:pointer;"
+            >
+              Delete
+            </button>
+          </div>
+        `;
+
         const infoWindow = new google.maps.InfoWindow({
-          content: `<strong>${point.name}</strong><br/>Status: ${point.status}`
+          content: content
         });
 
         marker.addListener("click", () => {
@@ -195,7 +214,6 @@ export default {
 
     storeEvacuationPoint() {
 
-      // RESET ERRORS
       this.errors = { name: false, location: false, status: false };
 
       let hasError = false;
@@ -205,52 +223,52 @@ export default {
       if (!this.form.status) this.errors.status = hasError = true;
 
       if (hasError) {
-        window.Swal.fire({
-          icon: "error",
-          title: "Validation Error",
-          text: "Complete all fields first"
-        });
+        window.Swal.fire("Error", "Complete all fields", "error");
         return;
       }
- 
+
       window.Swal.fire({
-        title: "Are you sure?",
-        text: "Save this evacuation point?",
+        title: "Save this point?",
         icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Yes, save it!",
-        cancelButtonText: "Cancel",
-        reverseButtons: true
+        showCancelButton: true
       }).then((result) => {
 
         if (result.isConfirmed) {
-
           axios.post("/api/evacuation-points", this.form)
             .then(() => {
 
-              window.Swal.fire({
-                icon: "success",
-                title: "Saved!",
-                timer: 1500,
-                showConfirmButton: false
-              });
+              window.Swal.fire("Saved!", "", "success");
 
-              this.form = {
-                name: '',
-                latitude: '',
-                longitude: '',
-                status: ''
-              };
+              this.form = { name: '', latitude: '', longitude: '', status: '' };
 
-              if (this.tempMarker) {
-                this.tempMarker.setMap(null);
-              }
+              if (this.tempMarker) this.tempMarker.setMap(null);
+
+              this.fetchEvacuationPoints();
+            });
+        }
+      });
+    },
+
+    // 🔥 DELETE METHOD
+    deleteEvacuationPoint(id) {
+      window.Swal.fire({
+        title: "Delete this point?",
+        icon: "warning",
+        showCancelButton: true
+      }).then((result) => {
+
+        if (result.isConfirmed) {
+          axios.delete(`/api/evacuation-points/${id}`)
+            .then(() => {
+
+              window.Swal.fire("Deleted!", "", "success");
 
               this.fetchEvacuationPoints();
             });
         }
       });
     }
+
   }
 };
 </script>
@@ -262,7 +280,6 @@ export default {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;
-  font-size: 16px;
 }
 
 .input:focus {

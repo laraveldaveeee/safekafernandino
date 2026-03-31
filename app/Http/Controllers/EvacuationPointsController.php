@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use App\EvacuationPoint;
 class EvacuationPointsController extends Controller
 {
+
+   
     public function index()
     {
         return view('evacuation-points.index');

@@ -39,4 +39,13 @@ class EvacuationPointsController extends Controller
             'data' => $evacuationPoint
         ]);
     }
+
+    public function destroy($id)
+    {
+        $point = EvacuationPoint::findOrFail($id);
+        $point->delete();
+
+        return response()->json(['message' => 'Deleted']);
+    }
+
 }

@@ -23,17 +23,25 @@ Route::get('/rescuers/{rescuer}/view', 'API\RescuersController@show');
 //Incidents
 
 Route::get('/incidents', 'API\IncidentsController@index');
+Route::post('/incidents/{id}/dispatch', 'API\IncidentsController@dispatch');
 
 //Evacuation Points 
 Route::get('/evacuation-points', 'API\EvacuationPointsController@index');
 Route::get('/evacuation-points/{evacuationPoint}/show', 'API\EvacuationPointsController@show');
 Route::post('/evacuation-points', 'API\EvacuationPointsController@store');
+Route::delete('/evacuation-points/{id}',  'API\EvacuationPointsController@destroy');
 
 //Children
 Route::get('/childrens', 'API\ChildrensController@index');
 
 //Parent 
 Route::get('/parents', 'API\GuardiansController@index');
+
+//Emergency Types
+Route::get('/emergency-types', 'API\EmergencyTypesController@index');
+Route::post('/emergency-types', 'API\EmergencyTypesController@store');
+Route::delete('/emergency-types/{emergency}', 'API\EmergencyTypesController@destroy');
+
 
 // Route::middleware('auth:sanctum')->group(function () {
 // });

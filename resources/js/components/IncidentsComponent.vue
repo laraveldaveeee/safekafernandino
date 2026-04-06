@@ -297,7 +297,7 @@ export default {
       if (window.google) return this.initMap()
 
       const script = document.createElement("script")
-      script.src = "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA"
       script.onload = this.initMap
       document.head.appendChild(script)
     },

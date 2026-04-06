@@ -2293,7 +2293,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     loadMap: function loadMap() {
       if (window.google) return this.initMap();
       var script = document.createElement("script");
-      script.src = "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY";
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA";
       script.onload = this.initMap;
       document.head.appendChild(script);
     },

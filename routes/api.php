@@ -20,7 +20,7 @@ Route::post('/rescuers', 'API\RescuersController@store');
 Route::get('/rescuers/{rescuer}/view', 'API\RescuersController@show');
 //Incidents
 Route::get('/incidents', 'API\IncidentsController@index');
-Route::post('/incidents/{id}/dispatch', 'API\IncidentsController@dispatch');
+Route::post('/incidents/{id}/dispatch', 'API\IncidentsController@dispatchIncident');
 
 //Evacuation Points 
 Route::get('/evacuation-points', 'API\EvacuationPointsController@index');

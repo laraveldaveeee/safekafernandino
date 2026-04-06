@@ -2197,165 +2197,119 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     return {
       incidents: [],
       selectedIncident: null,
-      // ✅ MODAL STATES (MISSING MO ITO)
+      rescuers: [],
       showModal: false,
-      modalType: '',
+      modalType: null,
+      showAssignModal: false,
+      selectedRescuerId: [],
+      dispatchingIncidentId: null,
+      nearestRescuer: null,
       map: null,
-      directionsService: null,
-      directionsRenderer: null,
-      userLocation: null,
       markers: []
     };
   },
   mounted: function mounted() {
     this.fetchIncidents();
-    this.loadGoogleMaps();
+    this.fetchRescuers();
+    this.loadMap();
+  },
+  computed: {
+    filteredRescuers: function filteredRescuers() {
+      var _this$selectedInciden;
+      if (!this.selectedIncident) return [];
+      var type = (_this$selectedInciden = this.selectedIncident.type) === null || _this$selectedInciden === void 0 ? void 0 : _this$selectedInciden.toLowerCase();
+      return this.rescuers.filter(function (r) {
+        var _r$emergency;
+        return ((_r$emergency = r.emergency) === null || _r$emergency === void 0 || (_r$emergency = _r$emergency.name) === null || _r$emergency === void 0 ? void 0 : _r$emergency.toLowerCase()) === type;
+      });
+    }
+  },
+  watch: {
+    selectedIncident: function selectedIncident() {
+      this.selectedRescuerId = [];
+      this.nearestRescuer = null;
+    }
   },
   methods: {
-    // FETCH INCIDENTS
     fetchIncidents: function fetchIncidents() {
       var _this = this;
       axios.get('/api/incidents').then(function (res) {
-        _this.incidents = res.data;
-      })["catch"](function (err) {
-        return console.error(err);
+        return _this.incidents = res.data;
+      });
+    },
+    fetchRescuers: function fetchRescuers() {
+      var _this2 = this;
+      axios.get('/api/rescuers').then(function (res) {
+        return _this2.rescuers = res.data;
       });
     },
     formatGuardian: function formatGuardian(g) {
       if (!g) return 'N/A';
-      if (_typeof(g) === 'object') return g.name || 'N/A';
       try {
-        return JSON.parse(g).name || 'N/A';
+        return _typeof(g) === 'object' ? g.name : JSON.parse(g).name;
       } catch (_unused) {
         return g;
       }
     },
-    // LOAD MAP
-    loadGoogleMaps: function loadGoogleMaps() {
-      if (window.google) return this.initMap();
-      var script = document.createElement("script");
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA";
-      script.async = true;
-      script.defer = true;
-      script.onload = this.initMap;
-      document.head.appendChild(script);
-    },
-    initMap: function initMap() {
-      var _this2 = this;
-      this.map = new google.maps.Map(document.getElementById("map"), {
-        center: {
-          lat: 15.0,
-          lng: 121.0
-        },
-        zoom: 10
-      });
-      this.directionsService = new google.maps.DirectionsService();
-      this.directionsRenderer = new google.maps.DirectionsRenderer({
-        suppressMarkers: true
-      });
-      this.directionsRenderer.setMap(this.map);
-      navigator.geolocation.getCurrentPosition(function (pos) {
-        _this2.userLocation = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude
-        };
-        new google.maps.Marker({
-          position: _this2.userLocation,
-          map: _this2.map,
-          label: "You",
-          icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-        });
-        _this2.map.setCenter(_this2.userLocation);
-      });
-    },
-    // SELECT INCIDENT
-    selectIncident: function selectIncident(incident) {
-      this.selectedIncident = incident;
-      var destination = {
-        lat: parseFloat(incident.latitude),
-        lng: parseFloat(incident.longitude)
-      };
-      this.clearMarkers();
-      this.directionsRenderer.setDirections({
-        routes: []
-      });
-      var marker = new google.maps.Marker({
-        position: destination,
-        map: this.map,
-        title: incident.type,
-        icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
-      });
-      this.markers.push(marker);
-      this.map.panTo(destination);
-      this.map.setZoom(16);
-      if (this.userLocation) {
-        this.drawRoute(this.userLocation, destination);
-      }
-    },
-    drawRoute: function drawRoute(origin, destination) {
-      var _this3 = this;
-      this.directionsService.route({
-        origin: origin,
-        destination: destination,
-        travelMode: google.maps.TravelMode.DRIVING
-      }, function (result, status) {
-        if (status === "OK") {
-          _this3.directionsRenderer.setDirections(result);
-        }
-      });
-    },
-    // 🚨 MODAL OPEN
     openModal: function openModal(incident, type) {
       this.selectedIncident = incident;
       this.modalType = type;
       this.showModal = true;
     },
-    // 🚨 MODAL CLOSE
     closeModal: function closeModal() {
       this.showModal = false;
     },
-    // DISPATCH
-    dispatchIncident: function dispatchIncident(id) {
-      var _this4 = this;
-      window.Swal.fire({
-        title: 'Dispatch this incident?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#16a34a',
-        confirmButtonText: 'Yes, Dispatch'
-      }).then(function (result) {
-        if (result.isConfirmed) {
-          axios.post("/api/incidents/".concat(id, "/dispatch")).then(function () {
-            window.Swal.fire({
-              icon: 'success',
-              title: 'Dispatched!',
-              timer: 1500,
-              showConfirmButton: false
-            });
-            _this4.selectedIncident.status = 'dispatched';
-            var index = _this4.incidents.findIndex(function (i) {
-              return i.id === id;
-            });
-            if (index !== -1) {
-              _this4.incidents[index].status = 'dispatched';
-            }
-          })["catch"](function () {
-            window.Swal.fire('Error', 'Failed to dispatch', 'error');
-          });
-        }
+    selectIncident: function selectIncident(incident) {
+      this.selectedIncident = incident;
+    },
+    openAssignModal: function openAssignModal(incident) {
+      this.selectedIncident = incident;
+      this.dispatchingIncidentId = incident.id;
+      this.selectedRescuerId = [];
+      this.showAssignModal = true;
+      this.findNearestRescuer();
+    },
+    findNearestRescuer: function findNearestRescuer() {
+      var valid = this.filteredRescuers.filter(function (r) {
+        return r.latitude && r.longitude;
+      });
+      if (!valid.length) return;
+      this.nearestRescuer = valid[0];
+      this.selectedRescuerId = [valid[0].id];
+    },
+    confirmDispatch: function confirmDispatch() {
+      var _this3 = this;
+      if (!this.selectedRescuerId.length) return alert("Select rescuer");
+      axios.post("/api/incidents/".concat(this.dispatchingIncidentId, "/dispatch"), {
+        rescuer_ids: this.selectedRescuerId
+      }).then(function () {
+        var inc = _this3.incidents.find(function (i) {
+          return i.id === _this3.dispatchingIncidentId;
+        });
+        if (inc) inc.status = 'dispatched';
+        _this3.showAssignModal = false;
       });
     },
-    clearMarkers: function clearMarkers() {
-      this.markers.forEach(function (m) {
-        return m.setMap(null);
+    loadMap: function loadMap() {
+      if (window.google) return this.initMap();
+      var script = document.createElement("script");
+      script.src = "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY";
+      script.onload = this.initMap;
+      document.head.appendChild(script);
+    },
+    initMap: function initMap() {
+      this.map = new google.maps.Map(document.getElementById("map"), {
+        center: {
+          lat: 15,
+          lng: 121
+        },
+        zoom: 10
       });
-      this.markers = [];
     },
     statusClass: function statusClass(status) {
-      if (status === 'pending') return 'text-yellow-600 font-semibold';
-      if (status === 'dispatched') return 'text-blue-600 font-semibold';
-      if (status === 'resolved') return 'text-green-600 font-semibold';
-      return 'text-gray-600';
+      if (status === 'pending') return 'text-yellow-600';
+      if (status === 'dispatched') return 'text-blue-600';
+      return 'text-green-600';
     }
   }
 });
@@ -3092,7 +3046,7 @@ var render = function render() {
     staticClass: "w-1/3 border-r dark:border-gray-700 flex flex-col"
   }, [_vm._m(0), _vm._v(" "), _c("div", {
     staticClass: "flex-1 overflow-y-auto"
-  }, [_vm._l(_vm.incidents, function (incident) {
+  }, _vm._l(_vm.incidents, function (incident) {
     var _vm$selectedIncident;
     return _c("div", {
       key: incident.id,
@@ -3107,56 +3061,27 @@ var render = function render() {
     }, [_c("h3", {
       staticClass: "font-semibold text-gray-800 dark:text-white"
     }, [_vm._v("\n              " + _vm._s(incident.type) + "\n            ")]), _vm._v(" "), _c("span", {
-      staticClass: "text-xs px-2 py-1 rounded-full font-semibold",
       "class": _vm.statusClass(incident.status)
     }, [_vm._v("\n              " + _vm._s(incident.status) + "\n            ")])]), _vm._v(" "), _c("p", {
       staticClass: "text-sm text-gray-500 mt-1"
-    }, [_vm._v("\n             " + _vm._s(incident.locations) + "\n          ")]), _vm._v(" "), _c("button", {
-      staticClass: "px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-100 dark:hover:bg-blue-800 transition",
+    }, [_vm._v("\n            " + _vm._s(incident.locations) + "\n          ")]), _vm._v(" "), _c("button", {
+      staticClass: "px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded",
       on: {
         click: function click($event) {
           $event.stopPropagation();
           return _vm.openModal(incident, "photo");
         }
       }
-    }, [_vm._v("\n                Photo\n              ")]), _vm._v(" "), _c("button", {
-      staticClass: "px-2 py-1 text-xs bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded hover:bg-purple-100 dark:hover:bg-purple-800 transition",
+    }, [_vm._v("\n            Photo\n          ")]), _vm._v(" "), _c("button", {
+      staticClass: "px-2 py-1 text-xs bg-purple-50 text-purple-700 rounded",
       on: {
         click: function click($event) {
           $event.stopPropagation();
           return _vm.openModal(incident, "media");
         }
       }
-    }, [_vm._v("\n                Media\n              ")])]);
-  }), _vm._v(" "), _vm.incidents.length === 0 ? _c("div", {
-    staticClass: "p-6 text-center text-gray-400"
-  }, [_vm._v("\n          No incidents found\n        ")]) : _vm._e()], 2)]), _vm._v(" "), _vm.showModal ? _c("div", {
-    staticClass: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
-  }, [_c("div", {
-    staticClass: "bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-3xl p-4 relative"
-  }, [_c("button", {
-    staticClass: "absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl",
-    on: {
-      click: _vm.closeModal
-    }
-  }, [_vm._v("\n        ✕\n      ")]), _vm._v(" "), _c("h2", {
-    staticClass: "text-lg font-bold mb-4 text-gray-900 dark:text-gray-100"
-  }, [_vm._v("\n        " + _vm._s(_vm.modalType === "photo" ? "Photo View" : "Media View") + "\n      ")]), _vm._v(" "), _vm.modalType === "photo" ? _c("div", [_vm.selectedIncident.photo_url ? _c("img", {
-    staticClass: "w-full rounded-lg",
-    attrs: {
-      src: _vm.selectedIncident.photo_url
-    }
-  }) : _c("p", [_vm._v("No photo available")])]) : _vm._e(), _vm._v(" "), _vm.modalType === "media" ? _c("div", [_vm.selectedIncident.media_url ? _c("video", {
-    staticClass: "w-full rounded-lg",
-    attrs: {
-      controls: ""
-    }
-  }, [_c("source", {
-    attrs: {
-      src: _vm.selectedIncident.media_url,
-      type: "video/mp4"
-    }
-  })]) : _c("p", [_vm._v("No media available")])]) : _vm._e()])]) : _vm._e(), _vm._v(" "), _c("div", {
+    }, [_vm._v("\n            Media\n          ")])]);
+  }), 0)]), _vm._v(" "), _c("div", {
     staticClass: "w-2/3 relative"
   }, [_c("div", {
     staticClass: "w-full h-full",
@@ -3164,29 +3089,114 @@ var render = function render() {
       id: "map"
     }
   }), _vm._v(" "), _vm.selectedIncident ? _c("div", {
-    staticClass: "absolute top-12 left-5 bg-white/90 backdrop-blur dark:bg-gray-800/90 shadow-2xl rounded-xl p-4 w-80 space-y-3 border dark:border-gray-700"
-  }, [_c("div", {
-    staticClass: "flex justify-between items-center"
+    staticClass: "absolute top-10 left-5 bg-white p-4 rounded shadow w-80"
   }, [_c("h3", {
-    staticClass: "font-bold text-gray-800 dark:text-white"
-  }, [_vm._v("\n       " + _vm._s(_vm.selectedIncident.type) + "\n    ")]), _vm._v(" "), _c("span", {
-    staticClass: "text-xs font-semibold",
-    "class": _vm.statusClass(_vm.selectedIncident.status)
-  }, [_vm._v("\n      " + _vm._s(_vm.selectedIncident.status) + "\n    ")])]), _vm._v(" "), _c("div", {
-    staticClass: "text-sm text-gray-600 dark:text-gray-300 space-y-1"
-  }, [_c("p", [_c("strong", [_vm._v(" Name:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.name || "N/A"))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v(" Child:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.child || "N/A"))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v(" Guardian:")]), _vm._v("   " + _vm._s(_vm.formatGuardian(_vm.selectedIncident.guardian)) + "\n")]), _vm._v(" "), _c("p", [_c("strong", [_vm._v(" Contact:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.contact || "N/A"))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v("Location:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.locations))])]), _vm._v(" "), _vm.selectedIncident.status === "pending" ? _c("button", {
-    staticClass: "w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition",
+    staticClass: "font-bold"
+  }, [_vm._v(_vm._s(_vm.selectedIncident.type))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v("Name:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.name || "N/A"))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v("Child:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.child || "N/A"))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v("Guardian:")]), _vm._v(" " + _vm._s(_vm.formatGuardian(_vm.selectedIncident.guardian)))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v("Contact:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.contact || "N/A"))]), _vm._v(" "), _c("p", [_c("strong", [_vm._v("Location:")]), _vm._v(" " + _vm._s(_vm.selectedIncident.locations))]), _vm._v(" "), _vm.selectedIncident.status === "pending" ? _c("button", {
+    staticClass: "w-full mt-3 bg-green-600 text-white py-2 rounded",
     on: {
       click: function click($event) {
-        return _vm.dispatchIncident(_vm.selectedIncident.id);
+        return _vm.openAssignModal(_vm.selectedIncident);
       }
     }
-  }, [_vm._v("\n     Dispatch Now\n  ")]) : _c("button", {
-    staticClass: "w-full bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed",
+  }, [_vm._v("\n          Dispatch Now\n        ")]) : _c("button", {
+    staticClass: "w-full mt-3 bg-gray-400 text-white py-2 rounded",
     attrs: {
       disabled: ""
     }
-  }, [_vm._v("\n    Already Dispatched\n  ")])]) : _vm._e()])]);
+  }, [_vm._v("\n          Already Dispatched\n        ")])]) : _vm._e()]), _vm._v(" "), _vm.showModal ? _c("div", {
+    staticClass: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+  }, [_c("div", {
+    staticClass: "bg-white rounded-xl w-full max-w-3xl p-4 relative"
+  }, [_c("button", {
+    staticClass: "absolute top-2 right-2 text-xl",
+    on: {
+      click: _vm.closeModal
+    }
+  }, [_vm._v("✕")]), _vm._v(" "), _c("h2", {
+    staticClass: "text-lg font-bold mb-4"
+  }, [_vm._v("\n          " + _vm._s(_vm.modalType === "photo" ? "Photo View" : "Media View") + "\n        ")]), _vm._v(" "), _vm.modalType === "photo" ? _c("div", [_vm.selectedIncident.photo_url ? _c("img", {
+    staticClass: "w-full rounded",
+    attrs: {
+      src: _vm.selectedIncident.photo_url
+    }
+  }) : _vm._e()]) : _vm._e(), _vm._v(" "), _vm.modalType === "media" ? _c("div", [_vm.selectedIncident.media_url ? _c("video", {
+    staticClass: "w-full",
+    attrs: {
+      controls: ""
+    }
+  }, [_c("source", {
+    attrs: {
+      src: _vm.selectedIncident.media_url
+    }
+  })]) : _vm._e()]) : _vm._e()])]) : _vm._e(), _vm._v(" "), _vm.showAssignModal ? _c("div", {
+    staticClass: "fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center"
+  }, [_c("div", {
+    staticClass: "bg-white rounded-xl p-5 w-full max-w-md"
+  }, [_c("h2", {
+    staticClass: "text-lg font-bold mb-3"
+  }, [_vm._v("Assign Rescuers")]), _vm._v(" "), _c("p", {
+    staticClass: "text-sm text-gray-500 mb-2"
+  }, [_vm._v("\n          " + _vm._s(_vm.selectedIncident.type) + " rescuers only\n        ")]), _vm._v(" "), _vm.nearestRescuer ? _c("div", {
+    staticClass: "text-green-600 text-sm mb-2"
+  }, [_vm._v("\n          🚑 Nearest: " + _vm._s(_vm.nearestRescuer.name) + "\n        ")]) : _vm._e(), _vm._v(" "), _c("div", {
+    staticClass: "space-y-2 max-h-60 overflow-y-auto"
+  }, _vm._l(_vm.filteredRescuers, function (r) {
+    var _r$emergency;
+    return _c("div", {
+      key: r.id,
+      staticClass: "flex items-center gap-2 p-2 border rounded hover:bg-gray-50"
+    }, [_c("input", {
+      directives: [{
+        name: "model",
+        rawName: "v-model",
+        value: _vm.selectedRescuerId,
+        expression: "selectedRescuerId"
+      }],
+      staticClass: "w-4 h-4",
+      attrs: {
+        type: "checkbox"
+      },
+      domProps: {
+        value: r.id,
+        checked: Array.isArray(_vm.selectedRescuerId) ? _vm._i(_vm.selectedRescuerId, r.id) > -1 : _vm.selectedRescuerId
+      },
+      on: {
+        change: function change($event) {
+          var $$a = _vm.selectedRescuerId,
+            $$el = $event.target,
+            $$c = $$el.checked ? true : false;
+          if (Array.isArray($$a)) {
+            var $$v = r.id,
+              $$i = _vm._i($$a, $$v);
+            if ($$el.checked) {
+              $$i < 0 && (_vm.selectedRescuerId = $$a.concat([$$v]));
+            } else {
+              $$i > -1 && (_vm.selectedRescuerId = $$a.slice(0, $$i).concat($$a.slice($$i + 1)));
+            }
+          } else {
+            _vm.selectedRescuerId = $$c;
+          }
+        }
+      }
+    }), _vm._v(" "), _c("div", [_c("p", {
+      staticClass: "font-semibold"
+    }, [_vm._v(_vm._s(r.name))]), _vm._v(" "), _c("p", {
+      staticClass: "text-xs text-gray-500"
+    }, [_vm._v("\n        " + _vm._s((_r$emergency = r.emergency) === null || _r$emergency === void 0 ? void 0 : _r$emergency.name) + "\n      ")])])]);
+  }), 0), _vm._v(" "), _c("button", {
+    staticClass: "w-full bg-green-600 text-white py-2 rounded",
+    on: {
+      click: _vm.confirmDispatch
+    }
+  }, [_vm._v("\n          Confirm Dispatch\n        ")]), _vm._v(" "), _c("button", {
+    staticClass: "w-full mt-2 text-gray-500",
+    on: {
+      click: function click($event) {
+        _vm.showAssignModal = false;
+      }
+    }
+  }, [_vm._v("\n          Cancel\n        ")])])]) : _vm._e()]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
@@ -3195,7 +3205,7 @@ var staticRenderFns = [function () {
     staticClass: "p-4 bg-white dark:bg-gray-800 shadow"
   }, [_c("h2", {
     staticClass: "text-xl font-bold text-gray-800 dark:text-white"
-  }, [_vm._v("\n           Incident Dashboard\n        ")])]);
+  }, [_vm._v("\n          Incident Dashboard\n        ")])]);
 }];
 render._withStripped = true;
 

@@ -33,11 +33,18 @@ class Incident extends Model
     }
 
 
-    public function rescuer()
-    {
-        return $this->belongsTo(Rescuer::class);
-    }
+    // public function rescuer()
+    // {
+    //     return $this->belongsTo(Rescuer::class);
+    // }
 
+  public function rescuers()
+{
+    return $this->belongsToMany(Rescuer::class,
+        'incident_rescuer',
+        'incident_id',
+        'rescuer_id' );
+}
     
     public function user()
     {

@@ -21,5 +21,10 @@ class Rescuer extends Model
         return $this->contact;
     }
 
+    public function incidents()
+    {
+        return $this->belongsToMany(\App\Incident::class, 'incident_rescuer');
+    }
+
 
 }

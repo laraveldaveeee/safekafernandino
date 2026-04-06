@@ -5,59 +5,50 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Incident;
+use App\Rescuer;
+
 class IncidentsController extends Controller
 {
     public function index()
     {
-        $incidents = Incident::with('guardian', 'rescuer')
-                            ->where('status', 'pending')
-                            ->latest('id')->get();
+        $incidents = Incident::with('guardian', 'rescuers')
+            ->where('status', 'pending')
+            ->latest('id')
+            ->get();
+
         return $incidents;
     }
 
     public function store()
     {
-        // $incidents = Incident::create([
-
-        // ]);
+        // placeholder for your create logic
     }
 
-    // public function dispatch($id)
-    // {
-    //     $incident = Incident::findOrFail($id);
-    //     $incident->status = 'Dispatched';
-    //     $incident->save();
-
-    //     return response()->json(['message' => 'Dispatched successfully']);
-    // }
-
-    public function dispatch($id)
+    /**
+     * DISPATCH INCIDENT (MULTIPLE RESCUERS VERSION)
+     */
+  public function dispatchIncident(Request $request, $id)
     {
         $incident = Incident::findOrFail($id);
 
-        $incident->status = 'Dispatched';
-        $incident->save();
+        $rescuerIds = $request->input('rescuer_ids');
 
-        if ($incident->rescuer && $incident->rescuer->contact) {
-
-            \Log::info('RESCUER DEBUG', [
-                'rescuer_id' => $incident->rescuer->id,
-                'contact' => $incident->rescuer->contact
-            ]);
-
-            $incident->rescuer->notify(
-                new \App\Notifications\IncidentDispatched($incident)
-            );
-
-        } else {
-            \Log::error('Rescuer or contact missing', [
-                'incident_id' => $incident->id
-            ]);
+        if (!$rescuerIds || !is_array($rescuerIds)) {
+            return response()->json([
+                'message' => 'No rescuers selected'
+            ], 422);
         }
 
+        // update incident status
+        $incident->status = 'dispatched';
+        $incident->save();
+
+        // 🔥 THIS IS THE IMPORTANT PART
+        $incident->rescuers()->sync($rescuerIds);
+
         return response()->json([
-            'message' => 'Incident dispatched successfully'
+            'message' => 'Dispatched successfully',
+            'incident' => $incident->load('rescuers')
         ]);
     }
-
 }

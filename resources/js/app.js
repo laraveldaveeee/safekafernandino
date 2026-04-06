@@ -4,6 +4,7 @@ window.Vue = require('vue');
 
 // Register Vue component
 Vue.component('users', require('./components/UsersComponent.vue').default);
+Vue.component('user-edit', require('./components/UsersEditComponent.vue').default);
 Vue.component('incidents', require('./components/IncidentsComponent.vue').default);
 Vue.component('evacuation-point', require('./components/EvacuationPointComponent.vue').default);
 Vue.component('rescuers-pending', require('./components/PendingRescuerComponent.vue').default);

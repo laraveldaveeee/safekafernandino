@@ -15,6 +15,7 @@ Route::group(['middleware' => 'auth'], function(){
 
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/users', 'UsersController@index')->name('users.index');
+    Route::get('/users/{user}/edit', 'UsersController@edit')->name('users.edit');
 
     Route::get('/rescuers-pending', 'PendingRescuerController@index')->name('rescuers-pending.index');
     Route::get('/rescuers-pending/{rescuer}/manage', 'PendingRescuerController@manage');
@@ -26,7 +27,7 @@ Route::group(['middleware' => 'auth'], function(){
     Route::get('/rescuers' , 'RescuersController@index')->name('rescuers.index');
     Route::get('/rescuers/{rescuer}/view' , 'RescuersController@show');
      
-     Route::get('/emergecy-types', 'EmergencyTypesController@index')->name('emergency-types.index');
+     Route::get('/emergency-types', 'EmergencyTypesController@index')->name('emergency-types.index');
 
   });
  

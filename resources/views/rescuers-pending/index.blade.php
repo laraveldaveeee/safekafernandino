@@ -1,26 +1,28 @@
 @extends('layouts.backend') 
 @section('content')
 <!-- PAGE CONTENT -->
-<main class="bg-gray-100 min-h-screen">
-
-  <!-- CONTAINER -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    <!-- HEADER -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center space-x-3">
-        <div class="p-2 bg-blue-100 rounded-lg">
-          <svg class="size-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
-          </svg>
-        </div>
+    
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="flex-1 overflow-y-auto p-5 lg:p-7 transition-all duration-300">
+      
+      <!-- Top header bar with page title & theme toggle (secondary) -->
+      <div class="flex justify-between items-center mb-7 pb-2 border-b border-gray-200 dark:border-gray-800">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Rescuers Pending</h1>
-          <p class="text-sm text-gray-500">List of all pending rescuers</p>
+          <h2 id="pageTitle" class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Rescuers Pending</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <i class="fas fa-bell text-gray-500 dark:text-gray-400 text-xl cursor-pointer hover:text-accent transition"></i>
+            <span class="absolute -top-1 -right-2 bg-accent text-white text-[10px] rounded-full px-1.5 py-0.5">4</span>
+          </div>
+          <button id="desktopThemeToggle" class="hidden sm:flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-full text-sm font-medium">
+            <i class="fas fa-moon dark:hidden"></i>
+            <i class="fas fa-sun hidden dark:inline"></i>
+            <span class="dark:hidden">Dark</span>
+            <span class="hidden dark:inline">Light</span>
+          </button>
         </div>
       </div>
- 
-    </div>
     <div id="app">
         <rescuers-pending></rescuers-pending> 
     </div>

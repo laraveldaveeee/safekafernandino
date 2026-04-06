@@ -2,37 +2,37 @@
   <div>
 
     <!-- TABLE -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden transition-colors duration-300">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 
         <!-- HEADER -->
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Location</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Contact</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
           </tr>
         </thead>
 
         <!-- BODY -->
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="incident in incidents" :key="incident.id">
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tr v-for="incident in incidents" :key="incident.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
 
-            <td class="px-6 py-4 text-sm">{{ incident.id }}</td>
-            <td class="px-6 py-4 text-sm">{{ incident.type }}</td>
-            <td class="px-6 py-4 text-sm">{{ incident.locations }}</td>
-            <td class="px-6 py-4 text-sm">{{ incident.contact }}</td>
-            <td class="px-6 py-4 text-sm">{{ incident.status }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100">{{ incident.id }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100">{{ incident.type }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100">{{ incident.locations }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100">{{ incident.contact }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100">{{ incident.status }}</td>
 
-            <td class="px-6 py-4 text-sm space-x-2">
+            <td class="px-6 py-4 text-sm text-right space-x-2">
 
               <!-- PHOTO -->
               <button
                 @click="openModal(incident, 'photo')"
-                class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100"
+                class="px-3 py-1.5 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition"
               >
                 Photo
               </button>
@@ -40,7 +40,7 @@
               <!-- MEDIA -->
               <button
                 @click="openModal(incident, 'media')"
-                class="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100"
+                class="px-3 py-1.5 bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition"
               >
                 Media
               </button>
@@ -48,7 +48,7 @@
               <!-- DISPATCH -->
               <button
                 @click="dispatchIncident(incident.id)"
-                class="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100"
+                class="px-3 py-1.5 bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition"
               >
                 Dispatch
               </button>
@@ -56,26 +56,33 @@
             </td>
 
           </tr>
-        </tbody>
 
+          <!-- EMPTY STATE -->
+          <tr v-if="incidents.length === 0">
+            <td colspan="6" class="text-center py-6 text-gray-500 dark:text-gray-400">
+              No incidents found
+            </td>
+          </tr>
+
+        </tbody>
       </table>
     </div>
 
-    <!--  MODAL -->
+    <!-- MODAL -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
 
-      <div class="bg-white rounded-xl shadow-xl w-full max-w-3xl p-4 relative">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-3xl p-4 relative transition-colors duration-300">
 
         <!-- CLOSE -->
         <button
           @click="closeModal"
-          class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl"
+          class="absolute top-2 right-2 text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-xl"
         >
           ✕
         </button>
 
         <!-- TITLE -->
-        <h2 class="text-lg font-bold mb-4">
+        <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">
           {{ modalType === 'photo' ? 'Photo View' : 'Media View' }}
         </h2>
 
@@ -86,7 +93,7 @@
             :src="selectedIncident.photo_url"
             class="w-full rounded-lg"
           />
-          <p v-else class="text-gray-500">No photo available</p>
+          <p v-else class="text-gray-500 dark:text-gray-400">No photo available</p>
         </div>
 
         <!-- VIDEO -->
@@ -94,7 +101,7 @@
           <video v-if="selectedIncident.media_url" controls class="w-full rounded-lg">
             <source :src="selectedIncident.media_url" type="video/mp4" />
           </video>
-          <p v-else class="text-gray-500">No media available</p>
+          <p v-else class="text-gray-500 dark:text-gray-400">No media available</p>
         </div>
 
       </div>
@@ -102,7 +109,6 @@
 
   </div>
 </template>
-
 <script>
 export default {
   data() {

@@ -2022,7 +2022,7 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
     this.loadGoogleMaps();
 
-    // 🔥 GLOBAL DELETE FUNCTION
+    //  GLOBAL DELETE FUNCTION
     window.deleteEvacuationPoint = function (id) {
       _this.deleteEvacuationPoint(id);
     };
@@ -2035,7 +2035,7 @@ __webpack_require__.r(__webpack_exports__);
         return;
       }
       var script = document.createElement("script");
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCQlbzQG6vym_ncbxLe3iGGaZShdAvs-Js";
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA";
       script.async = true;
       script.onload = function () {
         _this2.fetchEvacuationPoints();
@@ -2106,7 +2106,8 @@ __webpack_require__.r(__webpack_exports__);
           title: point.name,
           icon: _this5.getIcon(point.status)
         });
-        var content = "\n          <div style=\"min-width:150px\">\n            <strong>".concat(point.name, "</strong><br/>\n            Status: ").concat(point.status, "<br/><br/>\n            <button \n              onclick=\"window.deleteEvacuationPoint(").concat(point.id, ")\"\n              style=\"background:red;color:white;padding:5px 10px;border:none;border-radius:5px;cursor:pointer;\"\n            >\n              Delete\n            </button>\n          </div>\n        ");
+        var isDark = document.documentElement.classList.contains('dark');
+        var content = "\n          <div style=\"\n            min-width:160px;\n            padding:10px;\n            border-radius:10px;\n            font-size:13px;\n            background:".concat(isDark ? '#1f2937' : '#ffffff', ";\n            color:").concat(isDark ? '#f9fafb' : '#111827', ";\n          \">\n            <div style=\"font-weight:bold; margin-bottom:4px;\">\n              ").concat(point.name, "\n            </div>\n\n            <div style=\"margin-bottom:8px;\">\n              Status: <span style=\"font-weight:500;\">").concat(point.status, "</span>\n            </div>\n\n            <button \n              onclick=\"window.deleteEvacuationPoint(").concat(point.id, ")\"\n              style=\"\n                background:#ef4444;\n                color:white;\n                padding:6px 10px;\n                border:none;\n                border-radius:6px;\n                cursor:pointer;\n              \"\n            >\n              Delete\n            </button>\n          </div>\n        ");
         var infoWindow = new google.maps.InfoWindow({
           content: content
         });
@@ -2386,16 +2387,15 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
-    this.fetchIncidents();
+    this.fetchRescuers();
   },
   methods: {
-    fetchIncidents: function fetchIncidents() {
+    fetchRescuers: function fetchRescuers() {
       var _this = this;
       axios.get('/api/rescuers-pending').then(function (response) {
         _this.rescuers = response.data;
-        console.log(response.data);
       })["catch"](function (error) {
-        console.log(error);
+        console.error(error);
       });
     }
   }
@@ -2451,6 +2451,9 @@ __webpack_require__.r(__webpack_exports__);
       users: [],
       form: {
         name: '',
+        mobile: '',
+        address: '',
+        birthdate: '',
         email: '',
         password: ''
       }
@@ -2483,6 +2486,9 @@ __webpack_require__.r(__webpack_exports__);
 
         // reset form
         _this2.form.name = '';
+        _this2.form.address = '';
+        _this2.form.mobile = '';
+        _this2.form.birthdate = '';
         _this2.form.email = '';
         _this2.form.password = '';
 
@@ -2530,6 +2536,112 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/UsersEditComponent.vue?vue&type=script&lang=js":
+/*!****************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/UsersEditComponent.vue?vue&type=script&lang=js ***!
+  \****************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: {
+    userId: {
+      type: Number,
+      required: true
+    }
+  },
+  data: function data() {
+    return {
+      form: {
+        name: '',
+        mobile: '',
+        address: '',
+        birthdate: '',
+        email: '',
+        password: ''
+      }
+    };
+  },
+  watch: {
+    userId: {
+      immediate: true,
+      handler: function handler(newId) {
+        this.fetchUser(newId);
+      }
+    }
+  },
+  methods: {
+    fetchUser: function fetchUser(id) {
+      var _this = this;
+      // Reset form bago mag-load ng bagong user
+      this.form = {
+        name: '',
+        mobile: '',
+        address: '',
+        birthdate: '',
+        email: '',
+        password: ''
+      };
+      axios.get("/api/users/".concat(id, "/edit")).then(function (response) {
+        _this.form = {
+          name: response.data.name,
+          mobile: response.data.mobile,
+          address: response.data.address,
+          birthdate: response.data.birthdate,
+          email: response.data.email,
+          password: '' // password hindi nilalagay
+        };
+      })["catch"](function (error) {
+        console.error('Error fetching user:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Failed to load user data!'
+        });
+      });
+    },
+    updateUser: function updateUser() {
+      var _this2 = this;
+      // Optional confirmation before submitting
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to update this user.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update!'
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          axios.patch("/api/users/".concat(_this2.userId), _this2.form).then(function (response) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Updated!',
+              text: response.data.message,
+              showConfirmButton: false,
+              timer: 2000
+            }).then(function () {
+              // Redirect to /users route (make sure route exists)
+              window.location.href = '/users';
+            });
+          })["catch"](function (error) {
+            console.error('Error updating user:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Failed to update user!'
+            });
+          });
+        }
+      });
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/EmergencyTypesComponent.vue?vue&type=template&id=d5a7ed4c":
 /*!*******************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/EmergencyTypesComponent.vue?vue&type=template&id=d5a7ed4c ***!
@@ -2547,10 +2659,10 @@ var render = function render() {
   return _c("div", {
     staticClass: "grid grid-cols-1 lg:grid-cols-3 gap-6"
   }, [_c("div", {
-    staticClass: "lg:col-span-1 bg-white shadow-lg rounded-xl p-6"
+    staticClass: "lg:col-span-1 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300"
   }, [_c("h2", {
-    staticClass: "text-lg font-bold text-gray-800 mb-4"
-  }, [_vm._v("\n          Add Emergency Type\n        ")]), _vm._v(" "), _c("form", {
+    staticClass: "text-lg font-bold text-gray-800 dark:text-gray-100 mb-4"
+  }, [_vm._v("\n      Add Emergency Type\n    ")]), _vm._v(" "), _c("form", {
     staticClass: "space-y-4",
     on: {
       submit: function submit($event) {
@@ -2559,7 +2671,7 @@ var render = function render() {
       }
     }
   }, [_c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-400"
   }, [_vm._v("Name")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
@@ -2567,7 +2679,7 @@ var render = function render() {
       value: _vm.form.name,
       expression: "form.name"
     }],
-    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200",
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-100",
     attrs: {
       type: "text",
       placeholder: "Enter name"
@@ -2582,22 +2694,20 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("button", {
-    staticClass: "w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700",
+    staticClass: "w-full bg-blue-600 dark:bg-blue-700 text-white py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition",
     attrs: {
       type: "submit"
     }
-  }, [_vm._v("\n            Submit\n          ")])])]), _vm._v(" "), _c("div", {
-    staticClass: "lg:col-span-2 bg-white shadow-lg rounded-xl overflow-hidden"
+  }, [_vm._v("\n        Submit\n      ")])])]), _vm._v(" "), _c("div", {
+    staticClass: "lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden transition-colors duration-300"
   }, [_c("div", {
-    staticClass: "border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4"
-  }, [_c("div", {
-    staticClass: "flex items-center justify-between"
+    staticClass: "border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 px-6 py-4"
   }, [_c("div", {
     staticClass: "flex items-center space-x-3"
   }, [_c("div", {
-    staticClass: "p-2 bg-blue-100 rounded-lg"
+    staticClass: "p-2 bg-blue-100 dark:bg-blue-900 rounded-lg"
   }, [_c("svg", {
-    staticClass: "size-5 text-blue-600",
+    staticClass: "size-5 text-blue-600 dark:text-blue-400",
     attrs: {
       fill: "none",
       stroke: "currentColor",
@@ -2610,48 +2720,50 @@ var render = function render() {
       "stroke-width": "2",
       d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
     }
-  })])]), _vm._v(" "), _vm._m(0)])])]), _vm._v(" "), _c("div", {
-    staticClass: "bg-white shadow rounded-lg overflow-hidden"
+  })])]), _vm._v(" "), _c("h3", {
+    staticClass: "text-lg font-semibold text-gray-900 dark:text-gray-100"
+  }, [_vm._v("Emergency Type")])])]), _vm._v(" "), _c("div", {
+    staticClass: "bg-white dark:bg-gray-800 overflow-hidden"
   }, [_c("table", {
-    staticClass: "min-w-full divide-y divide-gray-200"
-  }, [_vm._m(1), _vm._v(" "), _c("tbody", {
-    staticClass: "bg-white divide-y divide-gray-200"
-  }, _vm._l(_vm.emergencies, function (emergency) {
+    staticClass: "min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+  }, [_vm._m(0), _vm._v(" "), _c("tbody", {
+    staticClass: "bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+  }, [_vm._l(_vm.emergencies, function (emergency) {
     return _c("tr", {
-      key: emergency.id
+      key: emergency.id,
+      staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition"
     }, [_c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(emergency.id) + " ")]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(emergency.name))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
+    }, [_vm._v(_vm._s(emergency.id))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
+    }, [_vm._v(_vm._s(emergency.name))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 text-right"
     }, [_c("button", {
-      staticClass: "bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600",
+      staticClass: "bg-red-500 dark:bg-red-600 text-white px-3 py-1 rounded hover:bg-red-600 dark:hover:bg-red-700 transition",
       on: {
         click: function click($event) {
           return _vm.deleteEmergency(emergency.id);
         }
       }
-    }, [_vm._v("\n                  Delete\n                ")])])]);
-  }), 0)])])])]);
+    }, [_vm._v("\n                Delete\n              ")])])]);
+  }), _vm._v(" "), _vm.emergencies.length === 0 ? _c("tr", [_c("td", {
+    staticClass: "text-center py-6 text-gray-500 dark:text-gray-400",
+    attrs: {
+      colspan: "3"
+    }
+  }, [_vm._v("\n              No emergency types found\n            ")])]) : _vm._e()], 2)])])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("h3", {
-    staticClass: "text-lg font-semibold text-gray-900"
-  }, [_vm._v("Emergency Types")])]);
-}, function () {
-  var _vm = this,
-    _c = _vm._self._c;
   return _c("thead", {
-    staticClass: "bg-gray-50"
+    staticClass: "bg-gray-50 dark:bg-gray-700"
   }, [_c("tr", [_c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-16"
   }, [_vm._v("\n              ID\n            ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
   }, [_vm._v("\n              Name\n            ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-40"
   }, [_vm._v("\n              Actions\n            ")])])]);
 }];
 render._withStripped = true;
@@ -2674,13 +2786,15 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "grid grid-cols-1 lg:grid-cols-3 gap-6"
+    staticClass: "p-6 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300"
+  }, [_vm._m(0), _vm._v(" "), _c("div", {
+    staticClass: "grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch"
   }, [_c("div", {
-    staticClass: "lg:col-span-1 bg-white shadow-lg rounded-xl p-6"
+    staticClass: "lg:col-span-1 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 h-full flex flex-col"
   }, [_c("h2", {
-    staticClass: "text-lg font-bold text-gray-800 mb-4"
-  }, [_vm._v("\n      Add Evacuation Point\n    ")]), _vm._v(" "), _c("form", {
-    staticClass: "space-y-4",
+    staticClass: "text-lg font-bold text-gray-800 dark:text-gray-100 mb-4"
+  }, [_vm._v("\n        Add Evacuation Point\n      ")]), _vm._v(" "), _c("form", {
+    staticClass: "space-y-4 flex flex-col h-full",
     on: {
       submit: function submit($event) {
         $event.preventDefault();
@@ -2688,7 +2802,7 @@ var render = function render() {
       }
     }
   }, [_c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
   }, [_vm._v("Name")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
@@ -2696,7 +2810,10 @@ var render = function render() {
       value: _vm.form.name,
       expression: "form.name"
     }],
-    "class": ["input", _vm.errors.name ? "border-red-500" : ""],
+    "class": ["w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100", _vm.errors.name ? "border-red-500" : ""],
+    attrs: {
+      placeholder: "Enter name"
+    },
     domProps: {
       value: _vm.form.name
     },
@@ -2707,7 +2824,7 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
   }, [_vm._v("Latitude")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
@@ -2715,7 +2832,7 @@ var render = function render() {
       value: _vm.form.latitude,
       expression: "form.latitude"
     }],
-    "class": ["input", _vm.errors.location ? "border-red-500" : ""],
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
     attrs: {
       readonly: ""
     },
@@ -2729,7 +2846,7 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
   }, [_vm._v("Longitude")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
@@ -2737,7 +2854,7 @@ var render = function render() {
       value: _vm.form.longitude,
       expression: "form.longitude"
     }],
-    "class": ["input", _vm.errors.location ? "border-red-500" : ""],
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
     attrs: {
       readonly: ""
     },
@@ -2751,7 +2868,7 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
   }, [_vm._v("Status")]), _vm._v(" "), _c("select", {
     directives: [{
       name: "model",
@@ -2759,7 +2876,7 @@ var render = function render() {
       value: _vm.form.status,
       expression: "form.status"
     }],
-    "class": ["input", _vm.errors.status ? "border-red-500" : ""],
+    "class": ["w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100", _vm.errors.status ? "border-red-500" : ""],
     on: {
       change: function change($event) {
         var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) {
@@ -2793,19 +2910,53 @@ var render = function render() {
       value: "Danger"
     }
   }, [_vm._v("Danger")])])]), _vm._v(" "), _c("button", {
-    staticClass: "w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700",
+    staticClass: "mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600 py-2 rounded-lg transition",
     attrs: {
       type: "submit"
     }
-  }, [_vm._v("\n        Submit\n      ")])])]), _vm._v(" "), _vm._m(0)]);
+  }, [_vm._v("\n          Submit\n        ")])])]), _vm._v(" "), _vm._m(1)])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "lg:col-span-2 bg-white shadow-lg rounded-xl p-4"
+    staticClass: "grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6"
   }, [_c("div", {
-    staticClass: "w-full h-[500px] rounded-lg",
+    staticClass: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm"
+  }, [_c("h2", {
+    staticClass: "text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3"
+  }, [_vm._v("\n        Legend & Status\n      ")]), _vm._v(" "), _c("div", {
+    staticClass: "space-y-2 text-sm"
+  }, [_c("div", {
+    staticClass: "flex items-center gap-3"
+  }, [_c("span", {
+    staticClass: "w-3 h-3 rounded-full bg-green-500"
+  }), _vm._v(" "), _c("span", [_vm._v("Safe")])]), _vm._v(" "), _c("div", {
+    staticClass: "flex items-center gap-3"
+  }, [_c("span", {
+    staticClass: "w-3 h-3 rounded-full bg-yellow-400"
+  }), _vm._v(" "), _c("span", [_vm._v("Semi-Crowded")])]), _vm._v(" "), _c("div", {
+    staticClass: "flex items-center gap-3"
+  }, [_c("span", {
+    staticClass: "w-3 h-3 rounded-full bg-orange-500"
+  }), _vm._v(" "), _c("span", [_vm._v("Crowded")])]), _vm._v(" "), _c("div", {
+    staticClass: "flex items-center gap-3"
+  }, [_c("span", {
+    staticClass: "w-3 h-3 rounded-full bg-red-500"
+  }), _vm._v(" "), _c("span", [_vm._v("Danger")])])])]), _vm._v(" "), _c("div", {
+    staticClass: "bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-xl p-4 shadow-sm"
+  }, [_c("h2", {
+    staticClass: "text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2"
+  }, [_vm._v("\n        ⚠️ Important Notes\n      ")]), _vm._v(" "), _c("ul", {
+    staticClass: "text-sm text-blue-800 dark:text-blue-200 space-y-2"
+  }, [_c("li", [_vm._v("• Double-click the map to fill coordinates.")]), _vm._v(" "), _c("li", [_vm._v("• Verify safety status before saving.")]), _vm._v(" "), _c("li", [_vm._v("• Keep data updated.")])])])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 h-full flex flex-col"
+  }, [_c("div", {
+    staticClass: "w-full flex-1 min-h-[450px] rounded-lg",
     attrs: {
       id: "map"
     }
@@ -2831,66 +2982,72 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", [_c("div", {
-    staticClass: "bg-white shadow rounded-lg overflow-hidden"
+    staticClass: "bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden transition-colors duration-300"
   }, [_c("table", {
-    staticClass: "min-w-full divide-y divide-gray-200"
+    staticClass: "min-w-full divide-y divide-gray-200 dark:divide-gray-700"
   }, [_vm._m(0), _vm._v(" "), _c("tbody", {
-    staticClass: "bg-white divide-y divide-gray-200"
-  }, _vm._l(_vm.incidents, function (incident) {
+    staticClass: "bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+  }, [_vm._l(_vm.incidents, function (incident) {
     return _c("tr", {
-      key: incident.id
+      key: incident.id,
+      staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition"
     }, [_c("td", {
-      staticClass: "px-6 py-4 text-sm"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
     }, [_vm._v(_vm._s(incident.id))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
     }, [_vm._v(_vm._s(incident.type))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
     }, [_vm._v(_vm._s(incident.locations))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
     }, [_vm._v(_vm._s(incident.contact))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
     }, [_vm._v(_vm._s(incident.status))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm space-x-2"
+      staticClass: "px-6 py-4 text-sm text-right space-x-2"
     }, [_c("button", {
-      staticClass: "px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100",
+      staticClass: "px-3 py-1.5 bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition",
       on: {
         click: function click($event) {
           return _vm.openModal(incident, "photo");
         }
       }
     }, [_vm._v("\n              Photo\n            ")]), _vm._v(" "), _c("button", {
-      staticClass: "px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100",
+      staticClass: "px-3 py-1.5 bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition",
       on: {
         click: function click($event) {
           return _vm.openModal(incident, "media");
         }
       }
     }, [_vm._v("\n              Media\n            ")]), _vm._v(" "), _c("button", {
-      staticClass: "px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100",
+      staticClass: "px-3 py-1.5 bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition",
       on: {
         click: function click($event) {
           return _vm.dispatchIncident(incident.id);
         }
       }
     }, [_vm._v("\n              Dispatch\n            ")])])]);
-  }), 0)])]), _vm._v(" "), _vm.showModal ? _c("div", {
+  }), _vm._v(" "), _vm.incidents.length === 0 ? _c("tr", [_c("td", {
+    staticClass: "text-center py-6 text-gray-500 dark:text-gray-400",
+    attrs: {
+      colspan: "6"
+    }
+  }, [_vm._v("\n            No incidents found\n          ")])]) : _vm._e()], 2)])]), _vm._v(" "), _vm.showModal ? _c("div", {
     staticClass: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
   }, [_c("div", {
-    staticClass: "bg-white rounded-xl shadow-xl w-full max-w-3xl p-4 relative"
+    staticClass: "bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-3xl p-4 relative transition-colors duration-300"
   }, [_c("button", {
-    staticClass: "absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl",
+    staticClass: "absolute top-2 right-2 text-gray-500 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 text-xl",
     on: {
       click: _vm.closeModal
     }
   }, [_vm._v("\n        ✕\n      ")]), _vm._v(" "), _c("h2", {
-    staticClass: "text-lg font-bold mb-4"
+    staticClass: "text-lg font-bold mb-4 text-gray-900 dark:text-gray-100"
   }, [_vm._v("\n        " + _vm._s(_vm.modalType === "photo" ? "Photo View" : "Media View") + "\n      ")]), _vm._v(" "), _vm.modalType === "photo" ? _c("div", [_vm.selectedIncident.photo_url ? _c("img", {
     staticClass: "w-full rounded-lg",
     attrs: {
       src: _vm.selectedIncident.photo_url
     }
   }) : _c("p", {
-    staticClass: "text-gray-500"
+    staticClass: "text-gray-500 dark:text-gray-400"
   }, [_vm._v("No photo available")])]) : _vm._e(), _vm._v(" "), _vm.modalType === "media" ? _c("div", [_vm.selectedIncident.media_url ? _c("video", {
     staticClass: "w-full rounded-lg",
     attrs: {
@@ -2902,26 +3059,26 @@ var render = function render() {
       type: "video/mp4"
     }
   })]) : _c("p", {
-    staticClass: "text-gray-500"
+    staticClass: "text-gray-500 dark:text-gray-400"
   }, [_vm._v("No media available")])]) : _vm._e()])]) : _vm._e()]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
   return _c("thead", {
-    staticClass: "bg-gray-50"
+    staticClass: "bg-gray-50 dark:bg-gray-700"
   }, [_c("tr", [_c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
   }, [_vm._v("ID")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
   }, [_vm._v("Type")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
   }, [_vm._v("Location")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
   }, [_vm._v("Contact")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
   }, [_vm._v("Status")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
+    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
   }, [_vm._v("Actions")])])]);
 }];
 render._withStripped = true;
@@ -2944,56 +3101,56 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "bg-white shadow-lg rounded-xl p-6"
+    staticClass: "bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300"
   }, [_c("div", {
     staticClass: "flex items-center space-x-6"
   }, [_c("div", {
-    staticClass: "w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600"
+    staticClass: "w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl font-bold text-blue-600 dark:text-blue-400"
   }, [_vm._v("\n      " + _vm._s(_vm.initials) + "\n    ")]), _vm._v(" "), _c("div", [_c("h2", {
-    staticClass: "text-xl font-semibold text-gray-800"
+    staticClass: "text-xl font-semibold text-gray-800 dark:text-gray-100"
   }, [_vm._v("\n        " + _vm._s(_vm.rescuer.name || "Loading...") + "\n      ")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-500"
+    staticClass: "text-gray-500 dark:text-gray-400"
   }, [_vm._v("\n        Type : " + _vm._s(_vm.rescuer.type || "-") + "\n      ")]), _vm._v(" "), _vm.rescuer.is_active == 1 ? _c("span", {
-    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full"
+    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded-full"
   }, [_vm._v("\n        Active\n      ")]) : _c("span", {
-    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 rounded-full"
+    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded-full"
   }, [_vm._v("\n        Inactive\n      ")])])]), _vm._v(" "), _c("div", {
-    staticClass: "border-t my-6"
+    staticClass: "border-t border-gray-200 dark:border-gray-700 my-6"
   }), _vm._v(" "), _c("div", {
     staticClass: "grid grid-cols-1 md:grid-cols-2 gap-6"
   }, [_c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500"
+    staticClass: "text-sm text-gray-500 dark:text-gray-400"
   }, [_vm._v("Email")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 font-medium"
+    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
   }, [_vm._v(_vm._s(_vm.rescuer.email || "-"))])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500"
+    staticClass: "text-sm text-gray-500 dark:text-gray-400"
   }, [_vm._v("Contact Number")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 font-medium"
+    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
   }, [_vm._v("\n        " + _vm._s(_vm.rescuer.contact || "N/A") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500"
+    staticClass: "text-sm text-gray-500 dark:text-gray-400"
   }, [_vm._v("Address")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 font-medium"
+    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
   }, [_vm._v("\n        " + _vm._s(_vm.rescuer.station_location || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500"
+    staticClass: "text-sm text-gray-500 dark:text-gray-400"
   }, [_vm._v("Status")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 font-medium"
+    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
   }, [_vm._v("\n        " + _vm._s(_vm.rescuer.status || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500"
+    staticClass: "text-sm text-gray-500 dark:text-gray-400"
   }, [_vm._v("Gender")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 font-medium"
+    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
   }, [_vm._v("\n        " + _vm._s(_vm.rescuer.gender || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500"
+    staticClass: "text-sm text-gray-500 dark:text-gray-400"
   }, [_vm._v("Station Location")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 font-medium"
+    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
   }, [_vm._v("\n        " + _vm._s(_vm.rescuer.station_location || "-") + "\n      ")])])]), _vm._v(" "), _c("div", {
     staticClass: "mt-6 flex space-x-3"
   }, [_c("button", {
-    staticClass: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700",
+    staticClass: "bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition",
     on: {
       click: _vm.approveRescuer
     }
   }, [_vm._v("\n      Approve\n    ")]), _vm._v(" "), _c("button", {
-    staticClass: "bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600",
+    staticClass: "bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition",
     on: {
       click: _vm.declineRescuer
     }
@@ -3020,17 +3177,15 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "lg:col-span-2 bg-white shadow-lg rounded-xl overflow-hidden"
+    staticClass: "lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden transition-colors duration-300"
   }, [_c("div", {
-    staticClass: "border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4"
-  }, [_c("div", {
-    staticClass: "flex items-center justify-between"
+    staticClass: "border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 px-6 py-4"
   }, [_c("div", {
     staticClass: "flex items-center space-x-3"
   }, [_c("div", {
-    staticClass: "p-2 bg-blue-100 rounded-lg"
+    staticClass: "p-2 bg-blue-100 dark:bg-blue-900 rounded-lg"
   }, [_c("svg", {
-    staticClass: "size-5 text-blue-600",
+    staticClass: "w-5 h-5 text-blue-600 dark:text-blue-400",
     attrs: {
       fill: "none",
       stroke: "currentColor",
@@ -3043,34 +3198,39 @@ var render = function render() {
       "stroke-width": "2",
       d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
     }
-  })])]), _vm._v(" "), _vm._m(0)])])]), _vm._v(" "), _c("div", {
-    staticClass: "bg-white shadow rounded-lg overflow-hidden"
+  })])]), _vm._v(" "), _c("h3", {
+    staticClass: "text-lg font-semibold text-gray-900 dark:text-gray-100"
+  }, [_vm._v("\n        Rescuers Pending\n      ")])])]), _vm._v(" "), _c("div", {
+    staticClass: "bg-white dark:bg-gray-800 overflow-x-auto"
   }, [_c("table", {
-    staticClass: "min-w-full divide-y divide-gray-200"
-  }, [_vm._m(1), _vm._v(" "), _c("tbody", {
-    staticClass: "bg-white divide-y divide-gray-200"
-  }, _vm._l(_vm.rescuers, function (rescuer) {
+    staticClass: "min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-700"
+  }, [_vm._m(0), _vm._v(" "), _c("tbody", {
+    staticClass: "divide-y divide-gray-200 dark:divide-gray-700"
+  }, [_vm._l(_vm.rescuers, function (rescuer) {
     return _c("tr", {
-      key: rescuer.id
+      key: rescuer.id,
+      staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition"
     }, [_c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.id) + " ")]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.type))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.name))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.contact))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.status))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-16"
+    }, [_vm._v(_vm._s(rescuer.id))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-32"
+    }, [_vm._v(_vm._s(rescuer.type))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate"
+    }, [_vm._v(_vm._s(rescuer.name))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40"
+    }, [_vm._v(_vm._s(rescuer.contact))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 w-32"
+    }, [_c("span", {
+      staticClass: "px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+    }, [_vm._v("\n              " + _vm._s(rescuer.status) + "\n            ")])]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40 text-right"
     }, [_c("a", {
-      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 group",
+      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition",
       attrs: {
         href: "/rescuers-pending/" + rescuer.id + "/manage"
       }
     }, [_c("svg", {
-      staticClass: "size-4 group-hover:scale-110 transition-transform",
+      staticClass: "w-4 h-4",
       attrs: {
         fill: "none",
         stroke: "currentColor",
@@ -3090,35 +3250,32 @@ var render = function render() {
         "stroke-width": "2",
         d: "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
       }
-    })]), _vm._v(" "), _c("span", {
-      staticClass: "text-sm"
-    }, [_vm._v("Manage")])])])]);
-  }), 0)])])]);
+    })]), _vm._v(" "), _c("span", [_vm._v("Manage")])])])]);
+  }), _vm._v(" "), _vm.rescuers.length === 0 ? _c("tr", [_c("td", {
+    staticClass: "text-center py-6 text-gray-500 dark:text-gray-400",
+    attrs: {
+      colspan: "6"
+    }
+  }, [_vm._v("\n            No pending rescuers\n          ")])]) : _vm._e()], 2)])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("h3", {
-    staticClass: "text-lg font-semibold text-gray-900"
-  }, [_vm._v("Rescuers Pending")])]);
-}, function () {
-  var _vm = this,
-    _c = _vm._self._c;
   return _c("thead", {
-    staticClass: "bg-gray-50"
+    staticClass: "bg-gray-50 dark:bg-gray-700"
   }, [_c("tr", [_c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n             ID\n           ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n             Type\n           ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n             Name\n           ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n             Contact\n           ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n             Status\n           ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n             Actions\n           ")])])]);
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-16"
+  }, [_vm._v("\n            ID\n          ")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-32"
+  }, [_vm._v("\n            Type\n          ")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300"
+  }, [_vm._v("\n            Name\n          ")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-40"
+  }, [_vm._v("\n            Contact\n          ")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-32"
+  }, [_vm._v("\n            Status\n          ")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-right text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-40"
+  }, [_vm._v("\n            Actions\n          ")])])]);
 }];
 render._withStripped = true;
 
@@ -3140,17 +3297,15 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "lg:col-span-2 bg-white shadow-lg rounded-xl overflow-hidden"
+    staticClass: "lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden transition-colors duration-300"
   }, [_c("div", {
-    staticClass: "border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4"
-  }, [_c("div", {
-    staticClass: "flex items-center justify-between"
+    staticClass: "border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 px-6 py-4"
   }, [_c("div", {
     staticClass: "flex items-center space-x-3"
   }, [_c("div", {
-    staticClass: "p-2 bg-blue-100 rounded-lg"
+    staticClass: "p-2 bg-blue-100 dark:bg-blue-900 rounded-lg"
   }, [_c("svg", {
-    staticClass: "size-5 text-blue-600",
+    staticClass: "size-5 text-blue-600 dark:text-blue-400",
     attrs: {
       fill: "none",
       stroke: "currentColor",
@@ -3163,29 +3318,32 @@ var render = function render() {
       "stroke-width": "2",
       d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
     }
-  })])]), _vm._v(" "), _vm._m(0)])])]), _vm._v(" "), _c("div", {
-    staticClass: "bg-white shadow rounded-lg overflow-hidden"
+  })])]), _vm._v(" "), _c("h3", {
+    staticClass: "text-lg font-semibold text-gray-900 dark:text-gray-100"
+  }, [_vm._v("\n        Rescuers List\n      ")])])]), _vm._v(" "), _c("div", {
+    staticClass: "bg-white dark:bg-gray-800 transition-colors duration-300"
   }, [_c("table", {
-    staticClass: "min-w-full divide-y divide-gray-200"
-  }, [_vm._m(1), _vm._v(" "), _c("tbody", {
-    staticClass: "bg-white divide-y divide-gray-200"
-  }, _vm._l(_vm.rescuers, function (rescuer) {
+    staticClass: "min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-auto"
+  }, [_vm._m(0), _vm._v(" "), _c("tbody", {
+    staticClass: "bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+  }, [_vm._l(_vm.rescuers, function (rescuer) {
     return _c("tr", {
-      key: rescuer.id
+      key: rescuer.id,
+      staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition"
     }, [_c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.id) + " ")]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.type))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.name))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.contact))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
-    }, [_vm._v(" " + _vm._s(rescuer.status))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700"
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
+    }, [_vm._v(_vm._s(rescuer.id))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
+    }, [_vm._v(_vm._s(rescuer.type))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
+    }, [_vm._v(_vm._s(rescuer.name))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
+    }, [_vm._v(_vm._s(rescuer.contact))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
+    }, [_vm._v(_vm._s(rescuer.status))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm text-right"
     }, [_c("a", {
-      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 group",
+      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition group",
       attrs: {
         href: "/rescuers/" + rescuer.id + "/view"
       }
@@ -3213,32 +3371,31 @@ var render = function render() {
     })]), _vm._v(" "), _c("span", {
       staticClass: "text-sm"
     }, [_vm._v("View Profile")])])])]);
-  }), 0)])])]);
+  }), _vm._v(" "), _vm.rescuers.length === 0 ? _c("tr", [_c("td", {
+    staticClass: "text-center py-6 text-gray-500 dark:text-gray-400",
+    attrs: {
+      colspan: "6"
+    }
+  }, [_vm._v("\n            No rescuers found\n          ")])]) : _vm._e()], 2)])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("h3", {
-    staticClass: "text-lg font-semibold text-gray-900"
-  }, [_vm._v("Rescuers list")])]);
-}, function () {
-  var _vm = this,
-    _c = _vm._self._c;
   return _c("thead", {
-    staticClass: "bg-gray-50"
+    staticClass: "bg-gray-50 dark:bg-gray-700"
   }, [_c("tr", [_c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n              ID\n            ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n              Type\n            ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n              Name\n            ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n              Contact\n            ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n              Status\n            ")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-  }, [_vm._v("\n              Actions\n            ")])])]);
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+  }, [_vm._v("ID")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+  }, [_vm._v("Type")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+  }, [_vm._v("Name")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+  }, [_vm._v("Contact")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+  }, [_vm._v("Status")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+  }, [_vm._v("Actions")])])]);
 }];
 render._withStripped = true;
 
@@ -3260,12 +3417,12 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "grid grid-cols-1 lg:grid-cols-3 gap-6"
+    staticClass: "grid grid-cols-1 lg:grid-cols-3 gap-6 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300 p-6"
   }, [_c("div", {
-    staticClass: "lg:col-span-1 bg-white shadow-lg rounded-xl p-6"
+    staticClass: "lg:col-span-1 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300"
   }, [_c("h2", {
-    staticClass: "text-lg font-bold text-gray-800 mb-4"
-  }, [_vm._v("\n         Add Admin\n       ")]), _vm._v(" "), _c("form", {
+    staticClass: "text-lg font-bold text-gray-800 dark:text-gray-100 mb-4"
+  }, [_vm._v("Add Admin")]), _vm._v(" "), _c("form", {
     staticClass: "space-y-4",
     on: {
       submit: function submit($event) {
@@ -3274,7 +3431,7 @@ var render = function render() {
       }
     }
   }, [_c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
   }, [_vm._v("Name")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
@@ -3282,7 +3439,7 @@ var render = function render() {
       value: _vm.form.name,
       expression: "form.name"
     }],
-    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200",
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
     attrs: {
       type: "text",
       placeholder: "Enter name"
@@ -3297,7 +3454,75 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Address")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.address,
+      expression: "form.address"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+    attrs: {
+      type: "text",
+      placeholder: "Enter address"
+    },
+    domProps: {
+      value: _vm.form.address
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "address", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Contact No.")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.mobile,
+      expression: "form.mobile"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+    attrs: {
+      type: "text",
+      placeholder: "Enter mobile"
+    },
+    domProps: {
+      value: _vm.form.mobile
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "mobile", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Birthdate")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.birthdate,
+      expression: "form.birthdate"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+    attrs: {
+      type: "date"
+    },
+    domProps: {
+      value: _vm.form.birthdate
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "birthdate", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
   }, [_vm._v("Email")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
@@ -3305,7 +3530,7 @@ var render = function render() {
       value: _vm.form.email,
       expression: "form.email"
     }],
-    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200",
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
     attrs: {
       type: "email",
       placeholder: "Enter email"
@@ -3320,7 +3545,7 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-600"
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
   }, [_vm._v("Password")]), _vm._v(" "), _c("input", {
     directives: [{
       name: "model",
@@ -3328,7 +3553,7 @@ var render = function render() {
       value: _vm.form.password,
       expression: "form.password"
     }],
-    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200",
+    staticClass: "w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
     attrs: {
       type: "password",
       placeholder: "Enter password"
@@ -3343,315 +3568,269 @@ var render = function render() {
       }
     }
   })]), _vm._v(" "), _c("button", {
-    staticClass: "w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700",
+    staticClass: "w-full bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600 py-2 rounded-lg transition-colors duration-300",
     attrs: {
       type: "submit"
     }
-  }, [_vm._v("\n           Submit\n         ")])])]), _vm._v(" "), _c("div", {
-    staticClass: "lg:col-span-2 bg-white shadow-lg rounded-xl overflow-hidden"
-  }, [_c("div", {
-    staticClass: "border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4"
-  }, [_c("div", {
-    staticClass: "flex items-center justify-between"
-  }, [_c("div", {
-    staticClass: "flex items-center space-x-3"
-  }, [_c("div", {
-    staticClass: "p-2 bg-blue-100 rounded-lg"
-  }, [_c("svg", {
-    staticClass: "size-5 text-blue-600",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-    }
-  })])]), _vm._v(" "), _vm._m(0)])])]), _vm._v(" "), _c("div", {
-    staticClass: "lg:col-span-2 bg-white shadow-lg rounded-xl overflow-hidden"
-  }, [_c("div", {
+  }, [_vm._v("\n        Submit\n      ")])])]), _vm._v(" "), _c("div", {
+    staticClass: "lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden transition-colors duration-300"
+  }, [_vm._m(0), _vm._v(" "), _c("div", {
     staticClass: "overflow-x-auto"
   }, [_c("table", {
-    staticClass: "min-w-full divide-y divide-gray-200"
-  }, [_c("thead", {
-    staticClass: "bg-gray-50"
-  }, [_c("tr", [_c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-  }, [_c("div", {
-    staticClass: "flex items-center gap-2"
-  }, [_c("svg", {
-    staticClass: "size-4",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
-    }
-  })]), _vm._v("\n               ID\n             ")])]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-  }, [_c("div", {
-    staticClass: "flex items-center gap-2"
-  }, [_c("svg", {
-    staticClass: "size-4",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-    }
-  })]), _vm._v("\n               Name\n             ")])]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-  }, [_c("div", {
-    staticClass: "flex items-center gap-2"
-  }, [_c("svg", {
-    staticClass: "size-4",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-    }
-  })]), _vm._v("\n               Email\n             ")])]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-  }, [_c("div", {
-    staticClass: "flex items-center justify-end gap-2"
-  }, [_c("svg", {
-    staticClass: "size-4",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-    }
-  }), _vm._v(" "), _c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-    }
-  })]), _vm._v("\n               Actions\n             ")])])])]), _vm._v(" "), _c("tbody", {
-    staticClass: "bg-white divide-y divide-gray-200"
+    staticClass: "min-w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors duration-300"
+  }, [_vm._m(1), _vm._v(" "), _c("tbody", {
+    staticClass: "bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700"
   }, [_vm._l(_vm.users, function (user) {
     return _c("tr", {
       key: user.id,
-      staticClass: "hover:bg-gray-50 transition-colors duration-150"
+      staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150"
     }, [_c("td", {
-      staticClass: "px-6 py-4 whitespace-nowrap"
+      staticClass: "px-6 py-4 text-gray-900 dark:text-gray-100"
+    }, [_vm._v(_vm._s(user.id))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-gray-900 dark:text-gray-100"
+    }, [_vm._v(_vm._s(user.name))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-gray-900 dark:text-gray-100"
+    }, [_vm._v(_vm._s(user.email))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-right"
     }, [_c("div", {
-      staticClass: "flex items-center"
-    }, [_c("div", {
-      staticClass: "flex-shrink-0 h-8 w-8"
-    }, [_c("div", {
-      staticClass: "h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 flex items-center justify-center"
-    }, [_c("span", {
-      staticClass: "text-xs font-medium text-white"
-    }, [_vm._v(_vm._s(user.id))])])])])]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 whitespace-nowrap"
-    }, [_c("div", {
-      staticClass: "flex items-center"
-    }, [_c("div", {
-      staticClass: "ml-3"
-    }, [_c("div", {
-      staticClass: "text-sm font-medium text-gray-900"
-    }, [_vm._v(_vm._s(user.name))])])])]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 whitespace-nowrap"
-    }, [_c("div", {
-      staticClass: "flex items-center gap-2"
-    }, [_c("svg", {
-      staticClass: "size-4 text-gray-400",
-      attrs: {
-        fill: "none",
-        stroke: "currentColor",
-        viewBox: "0 0 24 24"
-      }
-    }, [_c("path", {
-      attrs: {
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "stroke-width": "2",
-        d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-      }
-    })]), _vm._v(" "), _c("span", {
-      staticClass: "text-sm text-gray-900"
-    }, [_vm._v(_vm._s(user.email))])])]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-    }, [_c("div", {
-      staticClass: "flex justify-end gap-2"
+      staticClass: "flex gap-2 justify-end"
     }, [_c("a", {
-      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-200 group",
+      staticClass: "px-3 py-1.5 bg-green-50 dark:bg-green-600 text-green-700 dark:text-green-100 rounded-lg hover:bg-green-100 dark:hover:bg-green-500 transition-colors duration-300",
       attrs: {
-        href: "/users/" + user.id
+        href: "/users/" + user.id + "/edit"
       }
-    }, [_c("svg", {
-      staticClass: "size-4 group-hover:scale-110 transition-transform",
-      attrs: {
-        fill: "none",
-        stroke: "currentColor",
-        viewBox: "0 0 24 24"
-      }
-    }, [_c("path", {
-      attrs: {
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "stroke-width": "2",
-        d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      }
-    }), _vm._v(" "), _c("path", {
-      attrs: {
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "stroke-width": "2",
-        d: "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-      }
-    })]), _vm._v(" "), _c("span", {
-      staticClass: "text-sm"
-    }, [_vm._v("View")])]), _vm._v(" "), _c("button", {
-      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-all duration-200 group"
-    }, [_c("svg", {
-      staticClass: "size-4 group-hover:scale-110 transition-transform",
-      attrs: {
-        fill: "none",
-        stroke: "currentColor",
-        viewBox: "0 0 24 24"
-      }
-    }, [_c("path", {
-      attrs: {
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "stroke-width": "2",
-        d: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-      }
-    })]), _vm._v(" "), _c("span", {
-      staticClass: "text-sm"
-    }, [_vm._v("Edit")])]), _vm._v(" "), _c("button", {
-      staticClass: "bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600",
+    }, [_vm._v("\n                  Edit\n                ")]), _vm._v(" "), _c("button", {
+      staticClass: "px-3 py-1.5 bg-red-50 dark:bg-red-600 text-red-700 dark:text-red-100 rounded-lg hover:bg-red-100 dark:hover:bg-red-500 transition-colors duration-300",
       on: {
         click: function click($event) {
           return _vm.deleteUser(user.id);
         }
       }
-    }, [_vm._v("\n                 Delete\n               ")])])])]);
+    }, [_vm._v("\n                  Delete\n                ")])])])]);
   }), _vm._v(" "), _vm.users.length === 0 ? _c("tr", [_c("td", {
-    staticClass: "px-6 py-12 text-center",
+    staticClass: "px-6 py-12 text-center text-gray-500 dark:text-gray-300",
     attrs: {
       colspan: "4"
     }
-  }, [_c("div", {
-    staticClass: "flex flex-col items-center justify-center"
-  }, [_c("svg", {
-    staticClass: "size-12 text-gray-400 mb-3",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "1.5",
-      d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-    }
-  })]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-500 text-sm"
-  }, [_vm._v("No users found")]), _vm._v(" "), _c("button", {
-    staticClass: "mt-3 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
-  }, [_c("svg", {
-    staticClass: "size-4",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M12 4v16m8-8H4"
-    }
-  })]), _vm._v("\n                 Add your first user\n               ")])])])]) : _vm._e()], 2)])])]), _vm._v(" "), _c("div", {
-    staticClass: "border-t border-gray-200 bg-gray-50 px-6 py-3"
-  }, [_c("div", {
-    staticClass: "flex items-center justify-between"
-  }, [_c("div", {
-    staticClass: "text-sm text-gray-700"
+  }, [_vm._v("\n              No users found\n            ")])]) : _vm._e()], 2)])]), _vm._v(" "), _c("div", {
+    staticClass: "border-t border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-between items-center"
   }, [_c("span", {
-    staticClass: "font-medium"
-  }, [_vm._v(_vm._s(_vm.users.length))]), _vm._v(" total users found\n       ")]), _vm._v(" "), _c("div", {
-    staticClass: "flex gap-2"
-  }, [_c("button", {
-    staticClass: "inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-  }, [_c("svg", {
-    staticClass: "size-4",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M15 19l-7-7 7-7"
-    }
-  })]), _vm._v("\n           Previous\n         ")]), _vm._v(" "), _c("button", {
-    staticClass: "inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-  }, [_vm._v("\n           Next\n           "), _c("svg", {
-    staticClass: "size-4",
-    attrs: {
-      fill: "none",
-      stroke: "currentColor",
-      viewBox: "0 0 24 24"
-    }
-  }, [_c("path", {
-    attrs: {
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": "2",
-      d: "M9 5l7 7-7 7"
-    }
-  })])])])])])])]);
+    staticClass: "text-sm text-gray-700 dark:text-gray-300"
+  }, [_vm._v(_vm._s(_vm.users.length) + " total users")]), _vm._v(" "), _vm._m(2)])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
-  return _c("div", [_c("h3", {
-    staticClass: "text-lg font-semibold text-gray-900"
+  return _c("div", {
+    staticClass: "border-b border-gray-200 dark:border-gray-700 px-6 py-4"
+  }, [_c("h3", {
+    staticClass: "text-lg font-semibold text-gray-900 dark:text-gray-100"
   }, [_vm._v("Administrator Management")]), _vm._v(" "), _c("p", {
-    staticClass: "text-sm text-gray-500 mt-0.5"
-  }, [_vm._v("Manage and view all registered admins in the system")])]);
+    staticClass: "text-sm text-gray-500 dark:text-gray-300 mt-1"
+  }, [_vm._v("Manage all registered admins")])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("thead", {
+    staticClass: "bg-gray-50 dark:bg-gray-700"
+  }, [_c("tr", [_c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+  }, [_vm._v("ID")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+  }, [_vm._v("Name")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+  }, [_vm._v("Email")]), _vm._v(" "), _c("th", {
+    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+  }, [_vm._v("Actions")])])]);
+}, function () {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "flex gap-2"
+  }, [_c("button", {
+    staticClass: "px-3 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
+  }, [_vm._v("Previous")]), _vm._v(" "), _c("button", {
+    staticClass: "px-3 py-1.5 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-300"
+  }, [_vm._v("Next")])]);
 }];
+render._withStripped = true;
+
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/UsersEditComponent.vue?vue&type=template&id=c66db5d4":
+/*!**************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/UsersEditComponent.vue?vue&type=template&id=c66db5d4 ***!
+  \**************************************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function render() {
+  var _vm = this,
+    _c = _vm._self._c;
+  return _c("div", {
+    staticClass: "grid grid-cols-1 lg:grid-cols-3 gap-6"
+  }, [_c("div", {
+    staticClass: "lg:col-span-12 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6"
+  }, [_c("h2", {
+    staticClass: "text-lg font-bold text-gray-800 dark:text-white mb-4"
+  }, [_vm._v("Edit Admin")]), _vm._v(" "), _c("form", {
+    staticClass: "space-y-4",
+    on: {
+      submit: function submit($event) {
+        $event.preventDefault();
+        return _vm.updateUser.apply(null, arguments);
+      }
+    }
+  }, [_c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Name")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.name,
+      expression: "form.name"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring focus:ring-blue-200 dark:focus:ring-blue-400",
+    attrs: {
+      type: "text",
+      placeholder: "Enter name"
+    },
+    domProps: {
+      value: _vm.form.name
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "name", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Address")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.address,
+      expression: "form.address"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring focus:ring-blue-200 dark:focus:ring-blue-400",
+    attrs: {
+      type: "text",
+      placeholder: "Enter address"
+    },
+    domProps: {
+      value: _vm.form.address
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "address", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Contact No.")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.mobile,
+      expression: "form.mobile"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring focus:ring-blue-200 dark:focus:ring-blue-400",
+    attrs: {
+      type: "text",
+      placeholder: "Enter mobile"
+    },
+    domProps: {
+      value: _vm.form.mobile
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "mobile", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Birthdate")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.birthdate,
+      expression: "form.birthdate"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring focus:ring-blue-200 dark:focus:ring-blue-400",
+    attrs: {
+      type: "date"
+    },
+    domProps: {
+      value: _vm.form.birthdate
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "birthdate", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Email")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.email,
+      expression: "form.email"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring focus:ring-blue-200 dark:focus:ring-blue-400",
+    attrs: {
+      type: "email",
+      placeholder: "Enter email"
+    },
+    domProps: {
+      value: _vm.form.email
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "email", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("div", [_c("label", {
+    staticClass: "text-sm text-gray-600 dark:text-gray-300"
+  }, [_vm._v("Password")]), _vm._v(" "), _c("input", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.form.password,
+      expression: "form.password"
+    }],
+    staticClass: "w-full mt-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring focus:ring-blue-200 dark:focus:ring-blue-400",
+    attrs: {
+      type: "password",
+      placeholder: "Enter password"
+    },
+    domProps: {
+      value: _vm.form.password
+    },
+    on: {
+      input: function input($event) {
+        if ($event.target.composing) return;
+        _vm.$set(_vm.form, "password", $event.target.value);
+      }
+    }
+  })]), _vm._v(" "), _c("button", {
+    staticClass: "w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white py-2 rounded-lg transition-colors",
+    attrs: {
+      type: "submit"
+    }
+  }, [_vm._v("\n        Update\n      ")])])])]);
+};
+var staticRenderFns = [];
 render._withStripped = true;
 
 
@@ -51777,6 +51956,7 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 
 // Register Vue component
 Vue.component('users', __webpack_require__(/*! ./components/UsersComponent.vue */ "./resources/js/components/UsersComponent.vue")["default"]);
+Vue.component('user-edit', __webpack_require__(/*! ./components/UsersEditComponent.vue */ "./resources/js/components/UsersEditComponent.vue")["default"]);
 Vue.component('incidents', __webpack_require__(/*! ./components/IncidentsComponent.vue */ "./resources/js/components/IncidentsComponent.vue")["default"]);
 Vue.component('evacuation-point', __webpack_require__(/*! ./components/EvacuationPointComponent.vue */ "./resources/js/components/EvacuationPointComponent.vue")["default"]);
 Vue.component('rescuers-pending', __webpack_require__(/*! ./components/PendingRescuerComponent.vue */ "./resources/js/components/PendingRescuerComponent.vue")["default"]);
@@ -51844,15 +52024,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /*!*************************************************************!*\
   !*** ./resources/js/components/EmergencyTypesComponent.vue ***!
   \*************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EmergencyTypesComponent_vue_vue_type_template_id_d5a7ed4c__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EmergencyTypesComponent.vue?vue&type=template&id=d5a7ed4c */ "./resources/js/components/EmergencyTypesComponent.vue?vue&type=template&id=d5a7ed4c");
 /* harmony import */ var _EmergencyTypesComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EmergencyTypesComponent.vue?vue&type=script&lang=js */ "./resources/js/components/EmergencyTypesComponent.vue?vue&type=script&lang=js");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _EmergencyTypesComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _EmergencyTypesComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -51882,7 +52061,7 @@ component.options.__file = "resources/js/components/EmergencyTypesComponent.vue"
 /*!*************************************************************************************!*\
   !*** ./resources/js/components/EmergencyTypesComponent.vue?vue&type=script&lang=js ***!
   \*************************************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -52337,6 +52516,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_UsersComponent_vue_vue_type_template_id_47d47080__WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_UsersComponent_vue_vue_type_template_id_47d47080__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/UsersEditComponent.vue":
+/*!********************************************************!*\
+  !*** ./resources/js/components/UsersEditComponent.vue ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _UsersEditComponent_vue_vue_type_template_id_c66db5d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./UsersEditComponent.vue?vue&type=template&id=c66db5d4 */ "./resources/js/components/UsersEditComponent.vue?vue&type=template&id=c66db5d4");
+/* harmony import */ var _UsersEditComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./UsersEditComponent.vue?vue&type=script&lang=js */ "./resources/js/components/UsersEditComponent.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _UsersEditComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+  _UsersEditComponent_vue_vue_type_template_id_c66db5d4__WEBPACK_IMPORTED_MODULE_0__["render"],
+  _UsersEditComponent_vue_vue_type_template_id_c66db5d4__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/UsersEditComponent.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/UsersEditComponent.vue?vue&type=script&lang=js":
+/*!********************************************************************************!*\
+  !*** ./resources/js/components/UsersEditComponent.vue?vue&type=script&lang=js ***!
+  \********************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_UsersEditComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./UsersEditComponent.vue?vue&type=script&lang=js */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/UsersEditComponent.vue?vue&type=script&lang=js");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_UsersEditComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/UsersEditComponent.vue?vue&type=template&id=c66db5d4":
+/*!**************************************************************************************!*\
+  !*** ./resources/js/components/UsersEditComponent.vue?vue&type=template&id=c66db5d4 ***!
+  \**************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_UsersEditComponent_vue_vue_type_template_id_c66db5d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ref--6!../../../node_modules/vue-loader/lib??vue-loader-options!./UsersEditComponent.vue?vue&type=template&id=c66db5d4 */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/UsersEditComponent.vue?vue&type=template&id=c66db5d4");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_UsersEditComponent_vue_vue_type_template_id_c66db5d4__WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_UsersEditComponent_vue_vue_type_template_id_c66db5d4__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

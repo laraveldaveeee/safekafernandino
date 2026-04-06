@@ -1,58 +1,119 @@
 <template>
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="p-6 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-    <!-- FORM -->
-    <div class="lg:col-span-1 bg-white shadow-lg rounded-xl p-6">
-      <h2 class="text-lg font-bold text-gray-800 mb-4">
-        Add Evacuation Point
-      </h2>
+    <!-- TOP PANELS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 
-      <form @submit.prevent="storeEvacuationPoint" class="space-y-4">
+      <!-- LEGEND -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
+        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
+          Legend & Status
+        </h2>
 
-        <!-- NAME -->
-        <div>
-          <label class="text-sm text-gray-600">Name</label>
-          <input v-model="form.name" :class="['input', errors.name ? 'border-red-500' : '']" />
+        <div class="space-y-2 text-sm">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            <span>Safe</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span>Semi-Crowded</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+            <span>Crowded</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+            <span>Danger</span>
+          </div>
         </div>
+      </div>
 
-        <!-- LAT -->
-        <div>
-          <label class="text-sm text-gray-600">Latitude</label>
-          <input v-model="form.latitude" readonly :class="['input', errors.location ? 'border-red-500' : '']" />
-        </div>
+      <!-- NOTES -->
+      <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-xl p-4 shadow-sm">
+        <h2 class="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
+          ⚠️ Important Notes
+        </h2>
 
-        <!-- LNG -->
-        <div>
-          <label class="text-sm text-gray-600">Longitude</label>
-          <input v-model="form.longitude" readonly :class="['input', errors.location ? 'border-red-500' : '']" />
-        </div>
+        <ul class="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+          <li>• Double-click the map to fill coordinates.</li>
+          <li>• Verify safety status before saving.</li>
+          <li>• Keep data updated.</li>
+        </ul>
+      </div>
 
-        <!-- STATUS -->
-        <div>
-          <label class="text-sm text-gray-600">Status</label>
-          <select v-model="form.status" :class="['input', errors.status ? 'border-red-500' : '']">
-            <option value="" disabled>Select Status</option>
-            <option value="Safe">Safe</option>
-            <option value="Semi-Crowded">Semi-Crowded</option>
-            <option value="Crowded">Crowded</option>
-            <option value="Danger">Danger</option>
-          </select>
-        </div>
-
-        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-          Submit
-        </button>
-
-      </form>
     </div>
 
-    <!-- MAP -->
-    <div class="lg:col-span-2 bg-white shadow-lg rounded-xl p-4">
-      <div id="map" class="w-full h-[500px] rounded-lg"></div>
+    <!-- MAIN GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+      <!-- FORM -->
+      <div class="lg:col-span-1 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 h-full flex flex-col">
+
+        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">
+          Add Evacuation Point
+        </h2>
+
+        <form @submit.prevent="storeEvacuationPoint" class="space-y-4 flex flex-col h-full">
+
+          <!-- NAME -->
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-300">Name</label>
+            <input v-model="form.name"
+              :class="['w-full mt-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100', errors.name ? 'border-red-500' : '']"
+              placeholder="Enter name"
+            />
+          </div>
+
+          <!-- LAT -->
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-300">Latitude</label>
+            <input v-model="form.latitude" readonly
+              class="w-full mt-1 px-3 py-2 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            />
+          </div>
+
+          <!-- LNG -->
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-300">Longitude</label>
+            <input v-model="form.longitude" readonly
+              class="w-full mt-1 px-3 py-2 border rounded-lg bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            />
+          </div>
+
+          <!-- STATUS -->
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-300">Status</label>
+            <select v-model="form.status"
+              :class="['w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100', errors.status ? 'border-red-500' : '']">
+              <option value="" disabled>Select Status</option>
+              <option value="Safe">Safe</option>
+              <option value="Semi-Crowded">Semi-Crowded</option>
+              <option value="Crowded">Crowded</option>
+              <option value="Danger">Danger</option>
+            </select>
+          </div>
+
+          <!-- BUTTON -->
+          <button type="submit"
+            class="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600 py-2 rounded-lg transition">
+            Submit
+          </button>
+
+        </form>
+      </div>
+
+      <!-- MAP -->
+      <div class="lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 h-full flex flex-col">
+        <div id="map" class="w-full flex-1 min-h-[450px] rounded-lg"></div>
+      </div>
+
     </div>
 
   </div>
 </template>
+
 
 <script>
 export default {
@@ -81,7 +142,7 @@ export default {
   mounted() {
     this.loadGoogleMaps();
 
-    // 🔥 GLOBAL DELETE FUNCTION
+    //  GLOBAL DELETE FUNCTION
     window.deleteEvacuationPoint = (id) => {
       this.deleteEvacuationPoint(id);
     };
@@ -96,7 +157,7 @@ export default {
       }
 
       const script = document.createElement("script");
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCQlbzQG6vym_ncbxLe3iGGaZShdAvs-Js";
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA";
       script.async = true;
 
       script.onload = () => {
@@ -175,14 +236,34 @@ export default {
           title: point.name,
           icon: this.getIcon(point.status)
         });
-
+        const isDark = document.documentElement.classList.contains('dark');
         const content = `
-          <div style="min-width:150px">
-            <strong>${point.name}</strong><br/>
-            Status: ${point.status}<br/><br/>
+          <div style="
+            min-width:160px;
+            padding:10px;
+            border-radius:10px;
+            font-size:13px;
+            background:${isDark ? '#1f2937' : '#ffffff'};
+            color:${isDark ? '#f9fafb' : '#111827'};
+          ">
+            <div style="font-weight:bold; margin-bottom:4px;">
+              ${point.name}
+            </div>
+
+            <div style="margin-bottom:8px;">
+              Status: <span style="font-weight:500;">${point.status}</span>
+            </div>
+
             <button 
               onclick="window.deleteEvacuationPoint(${point.id})"
-              style="background:red;color:white;padding:5px 10px;border:none;border-radius:5px;cursor:pointer;"
+              style="
+                background:#ef4444;
+                color:white;
+                padding:6px 10px;
+                border:none;
+                border-radius:6px;
+                cursor:pointer;
+              "
             >
               Delete
             </button>

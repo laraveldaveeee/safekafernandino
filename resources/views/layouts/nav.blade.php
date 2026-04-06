@@ -1,10 +1,8 @@
-<nav class="relative bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg">
+{{-- <nav class="relative bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
-
-      <!-- LEFT SIDE -->
-      <div class="flex items-center">
-        <!-- Mobile menu button -->
+ 
+      <div class="flex items-center"> 
         <div class="sm:hidden mr-2">
           <button 
             @click="open = !open"
@@ -30,8 +28,7 @@
             SafeKaFernandino
           </span>
         </div>
-
-        <!-- Desktop Menu -->
+ 
         <div class="hidden sm:flex sm:ml-8 space-x-4">
 
           <a href="{{ route('home') }}"
@@ -78,8 +75,7 @@
 
         </div>
       </div>
-
-      <!-- RIGHT SIDE -->
+ 
       <div>
         <a href="{{ route('logout') }}"
           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
@@ -107,4 +103,59 @@
     <a href="{{ route('evacuation-points.index') }}" class="block text-white py-2">Evacuation Point</a>
 
   </div>
+</nav> --}}
+
+@inject('stats','App\Stats') 
+
+      <!-- Navigation Menu -->
+<nav class="flex-1 px-4 py-6 space-y-1">
+    <!-- Dashboard -->
+    <a href="{{ url('/home') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition group {{ request()->is('home') ? 'active' : '' }}">
+        <i class="fas fa-tachometer-alt w-5 text-accent"></i>
+        <span class="font-medium">Dashboard</span>
+    </a>
+
+    <!-- Administrator -->
+    <a href="{{ url('/users') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('users*') ? 'active' : '' }}">
+        <i class="fas fa-user-shield w-5 text-info"></i>
+        <span class="font-medium">Administrator</span>
+    </a>
+
+    <!-- Emergency Type -->
+    <a href="{{ url('/emergency-types') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('emergency-types*') ? 'active' : '' }}">
+        <i class="fas fa-bolt w-5 text-warning"></i>
+        <span class="font-medium">Emergency Type</span>
+    </a>
+
+    <!-- Rescuers Pending -->
+    <a href="{{ url('/rescuers-pending') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('rescuers-pending') ? 'active' : '' }}">
+        <i class="fas fa-hourglass-half w-5 text-orange-500"></i>
+        <span class="font-medium">Rescuers Pending</span>
+        <span class="ml-auto bg-accent/20 text-accent text-xs px-2 py-0.5 rounded-full">{{ $stats->totalRescuePending() }}</span>
+    </a>
+
+    <!-- Rescuers -->
+    <a href="{{ route('rescuers.index') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('rescuers') ? 'active' : '' }}">
+        <i class="fas fa-people-arrows w-5 text-success"></i>
+        <span class="font-medium">Rescuers</span>
+    </a>
+
+    <!-- Incidents -->
+    <a href="{{ url('/incidents') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('incidents*') ? 'active' : '' }}">
+        <i class="fas fa-triangle-exclamation w-5 text-accent"></i>
+        <span class="font-medium">Incidents</span>
+    </a>
+
+    <!-- Evacuation Points -->
+    <a href="{{ url('/evacuation-points') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('evacuation-points*') ? 'active' : '' }}">
+        <i class="fas fa-map-marker-alt w-5 text-info"></i>
+        <span class="font-medium">Evacuation Points</span>
+    </a>
 </nav>

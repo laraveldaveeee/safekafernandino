@@ -1,6 +1,5 @@
 @extends('layouts.backend') 
 @section('content')
- 
     
     <!-- ================= MAIN CONTENT ================= -->
     <main class="flex-1 overflow-y-auto p-5 lg:p-7 transition-all duration-300">
@@ -8,7 +7,7 @@
       <!-- Top header bar with page title & theme toggle (secondary) -->
       <div class="flex justify-between items-center mb-7 pb-2 border-b border-gray-200 dark:border-gray-800">
         <div>
-          <h2 id="pageTitle" class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Administrator</h2>
+          <h2 id="pageTitle" class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Edit Administrator</h2>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative">
@@ -23,10 +22,17 @@
           </button>
         </div>
       </div>
+      <div id="app">
+          <user-edit :user-id="{{ $user->id }}"></user-edit>
+      </div>
+  </div>
+</main>
 
-    <div id="app">
-        <users></users> 
+ 
+                
+                </div>
+            </div>
+        </div>
     </div>
-
-  
+</div>
 @endsection

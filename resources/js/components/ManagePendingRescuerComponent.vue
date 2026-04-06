@@ -1,34 +1,34 @@
 <template>
-  <div class="bg-white shadow-lg rounded-xl p-6">
+  <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300">
 
     <!-- TOP SECTION -->
     <div class="flex items-center space-x-6">
 
       <!-- AVATAR -->
-      <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600">
+      <div class="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl font-bold text-blue-600 dark:text-blue-400">
         {{ initials }}
       </div>
 
       <!-- BASIC INFO -->
       <div>
-        <h2 class="text-xl font-semibold text-gray-800">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
           {{ rescuer.name || 'Loading...' }}
         </h2>
 
-        <p class="text-gray-500">
+        <p class="text-gray-500 dark:text-gray-400">
           Type : {{ rescuer.type || '-' }}
         </p>
 
         <span
           v-if="rescuer.is_active == 1"
-          class="inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full"
+          class="inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded-full"
         >
           Active
         </span>
 
         <span
           v-else
-          class="inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 rounded-full"
+          class="inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded-full"
         >
           Inactive
         </span>
@@ -37,47 +37,47 @@
     </div>
 
     <!-- DIVIDER -->
-    <div class="border-t my-6"></div>
+    <div class="border-t border-gray-200 dark:border-gray-700 my-6"></div>
 
     <!-- DETAILS GRID -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
       <div>
-        <label class="text-sm text-gray-500">Email</label>
-        <p class="text-gray-800 font-medium">{{ rescuer.email || '-' }}</p>
+        <label class="text-sm text-gray-500 dark:text-gray-400">Email</label>
+        <p class="text-gray-800 dark:text-gray-100 font-medium">{{ rescuer.email || '-' }}</p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500">Contact Number</label>
-        <p class="text-gray-800 font-medium">
+        <label class="text-sm text-gray-500 dark:text-gray-400">Contact Number</label>
+        <p class="text-gray-800 dark:text-gray-100 font-medium">
           {{ rescuer.contact || 'N/A' }}
         </p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500">Address</label>
-        <p class="text-gray-800 font-medium">
+        <label class="text-sm text-gray-500 dark:text-gray-400">Address</label>
+        <p class="text-gray-800 dark:text-gray-100 font-medium">
           {{ rescuer.station_location || '-' }}
         </p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500">Status</label>
-        <p class="text-gray-800 font-medium">
+        <label class="text-sm text-gray-500 dark:text-gray-400">Status</label>
+        <p class="text-gray-800 dark:text-gray-100 font-medium">
           {{ rescuer.status || '-' }}
         </p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500">Gender</label>
-        <p class="text-gray-800 font-medium">
+        <label class="text-sm text-gray-500 dark:text-gray-400">Gender</label>
+        <p class="text-gray-800 dark:text-gray-100 font-medium">
           {{ rescuer.gender || '-' }}
         </p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500">Station Location</label>
-        <p class="text-gray-800 font-medium">
+        <label class="text-sm text-gray-500 dark:text-gray-400">Station Location</label>
+        <p class="text-gray-800 dark:text-gray-100 font-medium">
           {{ rescuer.station_location || '-' }}
         </p>
       </div>
@@ -86,21 +86,19 @@
 
     <!-- ACTION BUTTONS -->
     <div class="mt-6 flex space-x-3">
-
       <button
         @click="approveRescuer"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        class="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition"
       >
         Approve
       </button>
 
       <button
         @click="declineRescuer"
-        class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+        class="bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition"
       >
         Decline
       </button>
-
     </div>
 
   </div>

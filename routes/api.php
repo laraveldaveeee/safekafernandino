@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
-
+//Users Admin
 Route::get('/users', 'API\UsersController@index');
 Route::post('/users', 'API\UsersController@store');
-Route::get('/users/{user}', 'API\UsersController@edit');
+Route::get('/users/{user}/edit', 'API\UsersController@edit');
 Route::patch('/users/{user}', 'API\UsersController@update');
 Route::get('/users/{user}/show', 'API\UsersController@show');
 Route::delete('/users/{user}', 'API\UsersController@destroy');
@@ -12,16 +12,13 @@ Route::delete('/users/{user}', 'API\UsersController@destroy');
 //Pending Rescuer
 Route::get('/rescuers-pending', 'API\PendingRescuerController@index');
 Route::get('/rescuers-pending/{rescuer}/manage', 'API\PendingRescuerController@manage');
-
+//Rescuer Lists
 Route::patch('/rescuers/{rescuer}/approve', 'API\PendingRescuerController@approve');
 Route::patch('/rescuers/{rescuer}/decline', 'API\PendingRescuerController@decline');
-
-
 Route::get('/rescuers', 'API\RescuersController@index');
+Route::post('/rescuers', 'API\RescuersController@store');
 Route::get('/rescuers/{rescuer}/view', 'API\RescuersController@show');
-
 //Incidents
-
 Route::get('/incidents', 'API\IncidentsController@index');
 Route::post('/incidents/{id}/dispatch', 'API\IncidentsController@dispatch');
 
@@ -33,9 +30,11 @@ Route::delete('/evacuation-points/{id}',  'API\EvacuationPointsController@destro
 
 //Children
 Route::get('/childrens', 'API\ChildrensController@index');
+Route::post('/childrens', 'API\ChildrensController@store');
 
-//Parent 
-Route::get('/parents', 'API\GuardiansController@index');
+//Guardian 
+Route::get('/guardians', 'API\GuardiansController@index');
+Route::post('/guardians', 'API\GuardiansController@store');
 
 //Emergency Types
 Route::get('/emergency-types', 'API\EmergencyTypesController@index');

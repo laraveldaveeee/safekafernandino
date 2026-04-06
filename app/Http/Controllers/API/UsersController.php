@@ -5,11 +5,12 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\User;
+use App\Admin;
 class UsersController extends Controller
 {
     public function index()
     {
-        return User::all();
+        return User::with('admin')->get();
     }
 
     public function store(Request $request)
@@ -20,10 +21,20 @@ class UsersController extends Controller
             'password' => 'required|min:6'
         ]);
 
+        $admin = Admin::create([
+            'name'  => $request->name,
+            'email'  => $request->email,
+            'mobile'  => $request->mobile,
+            'address'  => $request->address,
+            'birthdate'  => $request->birthdate,
+        ]);
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'admin_id'  => $admin->id,
+            'name' => $admin->name,
+            'email' => $admin->email,
             'password' => bcrypt($request->password),
+            'status'    => 'confirmed'
         ]);
 
         return response()->json([
@@ -32,33 +43,59 @@ class UsersController extends Controller
         ]);
     }
 
-
-    public function update(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6'
-        ]);
-
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
-
-        return response()->json([
-            'message' => 'User updated successfully',
-            'user' => $user
-        ]);
-    }
-
-
     public function edit(User $user)
     {
-        return $user;
+         $user->load('admin');
+
+          return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'address' => $user->admin->address ?? null,
+            'mobile' => $user->admin->mobile ?? null,
+            'birthdate' => $user->admin->birthdate ?? null,
+        ]);
+
     }
 
+
+    public function update(Request $request, User $user)
+    {
+        // Validate input
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6',
+            'mobile' => 'nullable',
+            'address' => 'nullable',
+            'birthdate' => 'nullable|date',
+        ]);
+        // Update Admin fields (assuming admin exists)
+        if ($user->admin) {
+            $user->admin->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                'address' => $request->address,
+                'birthdate' => $request->birthdate,
+            ]);
+        }
+        // Update User
+        $userData = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+        if ($request->filled('password')) {
+            $userData['password'] = bcrypt($request->password);
+        }
+        $user->update($userData);
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user->load('admin')
+        ]);
+    } 
+
+ 
     public function show(User $user)
     {
         return $user;

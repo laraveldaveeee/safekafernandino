@@ -9,7 +9,7 @@ class RescuersController extends Controller
 {
     public function index()
     {
-        $rescuers = Rescuer::where('status', 'approved')->get();
+        $rescuers = Rescuer::with('emergency')->where('status', 'approved')->get();
 
         return $rescuers;
     }

@@ -27,7 +27,7 @@
       theme: {
         extend: {
           fontFamily: {
-            'sans': ['Inter', 'system-ui', 'Segoe UI', 'sans-serif'],
+            'sans': ['Poppins', 'system-ui', 'Segoe UI', 'sans-serif'],
           },
           colors: {
             'dark-bg': '#0a0f1c',

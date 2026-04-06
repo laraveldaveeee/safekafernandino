@@ -15,6 +15,7 @@ class CreateRescuersTable extends Migration
     {
         Schema::create('rescuers', function (Blueprint $table) {
             $table->id();
+            $table->integer('emergency_id')->default(0);
             $table->string('name');
             $table->string('email')->unique();
             $table->string('type')->nullable();

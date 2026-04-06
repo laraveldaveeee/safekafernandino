@@ -27,11 +27,18 @@ class Incident extends Model
         return $this->contact;
     }
 
+    public function guardian()
+    {
+        return $this->belongsTo(Guardian::class);
+    }
+
 
     public function rescuer()
     {
         return $this->belongsTo(Rescuer::class);
     }
+
+    
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

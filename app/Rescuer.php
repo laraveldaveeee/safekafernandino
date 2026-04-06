@@ -11,10 +11,15 @@ class Rescuer extends Model
 
     protected $guarded = [];
 
+    public function emergency()
+    {
+        return $this->belongsTo(EmergencyType::class);
+    }    
+
     public function routeNotificationForSms()
     {
         return $this->contact;
     }
 
-    
+
 }

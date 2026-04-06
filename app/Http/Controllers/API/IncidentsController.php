@@ -9,7 +9,9 @@ class IncidentsController extends Controller
 {
     public function index()
     {
-        $incidents = Incident::all();
+        $incidents = Incident::with('guardian', 'rescuer')
+                            ->where('status', 'pending')
+                            ->latest('id')->get();
         return $incidents;
     }
 

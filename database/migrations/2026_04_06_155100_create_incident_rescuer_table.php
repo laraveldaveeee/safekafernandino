@@ -17,6 +17,8 @@ class CreateIncidentRescuerTable extends Migration
             $table->id();
             $table->integer('incident_id')->default(0);
             $table->integer('rescuer_id')->default(0);
+            $table->string('status')->default('pending');
+            $table->string('assigned_at')->nullable();
             $table->timestamps();
         });
     }

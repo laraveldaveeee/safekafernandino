@@ -11,7 +11,7 @@ class Incident extends Model
 
     protected $fillable = [
         'user_id',
-        'rescuer_id',
+        // 'rescuer_id',
         'child_id',
         'type',
         'locations',

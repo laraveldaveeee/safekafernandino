@@ -8,7 +8,7 @@
       <!-- Top header bar with page title & theme toggle (secondary) -->
       <div class="flex justify-between items-center mb-7 pb-2 border-b border-gray-200 dark:border-gray-800">
         <div>
-          <h2 id="pageTitle" class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Administrator</h2>
+          <h2 id="pageTitle" class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Rescuer Profile</h2>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative">
@@ -22,5 +22,9 @@
             <span class="hidden dark:inline">Light</span>
           </button>
         </div>
+      </div>
+
+      <div id="app">
+        <rescuer-profile :rescuer-id="{{ $rescuer->id }}"></rescuer-profile>
       </div>
 @endsection

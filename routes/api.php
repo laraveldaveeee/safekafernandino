@@ -22,6 +22,8 @@ Route::get('/rescuers/{rescuer}/view', 'API\RescuersController@show');
 Route::get('/incidents', 'API\IncidentsController@index');
 Route::post('/incidents/{id}/dispatch', 'API\IncidentsController@dispatchIncident');
 
+Route::get('/incidents/rescuer', 'API\IncidentRescuersController@pending'); 
+
 //Evacuation Points 
 Route::get('/evacuation-points', 'API\EvacuationPointsController@index');
 Route::get('/evacuation-points/{evacuationPoint}/show', 'API\EvacuationPointsController@show');

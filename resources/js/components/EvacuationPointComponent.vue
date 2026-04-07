@@ -157,7 +157,7 @@ export default {
       }
 
       const script = document.createElement("script");
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA";
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyASPPDUIdUILFjE8aYPaL9ayog8QqE7SI0";
       script.async = true;
 
       script.onload = () => {

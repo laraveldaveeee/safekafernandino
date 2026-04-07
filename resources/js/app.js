@@ -10,6 +10,7 @@ Vue.component('evacuation-point', require('./components/EvacuationPointComponent
 Vue.component('rescuers-pending', require('./components/PendingRescuerComponent.vue').default);
 Vue.component('rescuers-pending-manage', require('./components/ManagePendingRescuerComponent.vue').default);
 Vue.component('rescuers', require('./components/RescuersComponent.vue').default);
+Vue.component('rescuer-profile', require('./components/RescuerProfileComponent.vue').default);
 Vue.component('emergency-type', require('./components/EmergencyTypesComponent.vue').default);
 
 // Create Vue instance

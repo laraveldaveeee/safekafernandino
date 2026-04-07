@@ -5,35 +5,50 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Rescuer;
+use App\User;
+use App\Role;
 class PendingRescuerController extends Controller
 {
     public function index()
     {
-        return Rescuer::where('status', 'pending')->get();
+        return User::with('rescuer', 'role')->where('status', 'pending')->get();
     }
 
-    public function manage(Rescuer $rescuer)
+    public function manage(User $user)
     {
-        return $rescuer;
+        return response()->json([
+            'user' => $user->load('rescuer', 'role'),
+            'roles' => Role::whereNotIn('id', [1, 5])->get()
+        ]);
     }
-
-    public function approve(Request $request, Rescuer $rescuer)
+   public function approve(Request $request, User $user)
     {
-       
-        $rescuer->update([
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+        ]);
 
+        $user->update([
+            'role_id' => $request->role_id,
+            'status' => 'approved',
+        ]);
+
+        $user->rescuer()->update([
             'status'    => 'approved'
         ]);
 
-        return response()->json($rescuer);
+        return response()->json([
+            'message' => 'Role assigned and user approved successfully',
+            'user' => $user->load('role', 'rescuer')
+        ]);
     }
 
-    public function decline(Request $request, Rescuer $rescuer)
+    public function decline(User $user)
     {
-        $rescuer->update([
-            'status'    => 'declined'
+        $user->rescuer()->update([
+            'status' => 'declined',
+            'is_active' => 0
         ]);
 
-        return $rescuer;
+        return response()->json(['message' => 'Declined']);
     }
 }

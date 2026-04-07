@@ -24,7 +24,7 @@
       </div>
 
       <div id="app">
-          <rescuers-pending-manage :rescuer-id="{{ $rescuer->id }}"></rescuers-pending-manage>
+          <rescuers-pending-manage :user-id="{{ $user->id }}"></rescuers-pending-manage>
       </div>
 
   </div>

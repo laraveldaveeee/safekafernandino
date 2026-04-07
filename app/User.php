@@ -17,7 +17,14 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'admin_id', 'name', 'email', 'password', 'pending'
+        'role_id', 
+        'admin_id', 
+        'rescuer_id', 
+        'guardian_id', 
+        'name', 
+        'email', 
+        'password', 
+        'status'
     ];
 
     /**
@@ -41,5 +48,20 @@ class User extends Authenticatable
     public function admin()
     {
         return $this->belongsTo(Admin::class);
+    }
+
+    public function guardian()
+    {
+        return $this->belongsTo(Guardian::class);
+    }
+
+    public function rescuer()
+    {
+        return $this->belongsTo(Rescuer::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 }

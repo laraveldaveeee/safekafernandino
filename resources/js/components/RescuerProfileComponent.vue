@@ -1,121 +1,104 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300">
+  <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
 
-    <!-- TOP SECTION -->
-    <div class="flex items-center space-x-6">
+    <!-- LOADING -->
+    <div v-if="loading" class="text-center text-gray-500 py-10">
+      Loading rescuer profile...
+    </div>
 
-      <!-- AVATAR -->
-      <div class="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl font-bold text-blue-600 dark:text-blue-400">
-        {{ initials }}
+    <!-- ERROR -->
+    <div v-else-if="error" class="text-center text-red-500 py-10">
+      Failed to load rescuer profile
+    </div>
+
+    <!-- CONTENT -->
+    <div v-else>
+
+      <!-- TOP -->
+      <div class="flex items-center space-x-6">
+
+        <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600 ">
+          {{ initials }}
+        </div>
+
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ user.name }}
+          </h2>
+
+          <!-- ROLE -->
+          <p class="text-gray-500 text-gray-900 dark:text-white">
+            Role: {{ user.role?.name || '-' }}
+          </p>
+
+         
+
+          <!-- STATUS -->
+          <span
+            class="inline-block mt-2 px-3 py-1 text-sm rounded-full"
+            :class="user.rescuer?.status === 'approved'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-yellow-100 text-yellow-700 text-gray-900 dark:text-white'"
+          >
+            {{ user.rescuer?.status || 'pending' }}
+          </span>
+        </div>
+
       </div>
 
-      <!-- BASIC INFO -->
-      <div>
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
-          {{ rescuer.name || 'Loading...' }}
-        </h2>
+      <div class="border-t my-6"></div>
 
-        <p class="text-gray-500 dark:text-gray-400">
-          Type : {{ rescuer.type || '-' }}
-        </p>
+      <!-- DETAILS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-900 dark:text-white">
 
-        <span
-          v-if="rescuer.is_active == 1"
-          class="inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded-full"
-        >
-          Active
-        </span>
+        <div>
+          <label>Email</label>
+          <p>{{ user.email || '-' }}</p>
+        </div>
 
-        <span
-          v-else
-          class="inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded-full"
-        >
-          Inactive
-        </span>
+        <div>
+          <label>Contact</label>
+          <p>{{ user.rescuer?.contact || '-' }}</p>
+        </div>
+
+        <div>
+          <label>Address</label>
+          <p>{{ user.rescuer?.station_location || '-' }}</p>
+        </div>
+
+        <div>
+          <label>Gender</label>
+          <p>{{ user.rescuer?.gender || '-' }}</p>
+        </div>
+
       </div>
 
     </div>
 
-    <!-- DIVIDER -->
-    <div class="border-t border-gray-200 dark:border-gray-700 my-6"></div>
-
-    <!-- DETAILS GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Email</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">{{ rescuer.email || '-' }}</p>
-      </div>
-
-      <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Contact Number</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.contact || 'N/A' }}
-        </p>
-      </div>
-
-      <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Address</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.station_location || '-' }}
-        </p>
-      </div>
-
-      <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Status</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.status || '-' }}
-        </p>
-      </div>
-
-      <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Gender</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.gender || '-' }}
-        </p>
-      </div>
-
-      <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Station Location</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.station_location || '-' }}
-        </p>
-      </div>
-
-    </div>
-
-   
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
-  props: {
-    rescuerId: {
-      type: Number,
-      required: true
-    }
-  },
 
   data() {
     return {
-      rescuer: {
-        name: '',
-        type: '',
-        email: '',
-        contact: '',
-        station_location: '',
-        status: '',
-        gender: '',
-        is_active: 0
-      }
+      user: {
+        rescuer: {},
+        role: {}
+      },
+      loading: false,
+      error: false,
+      userId: null
     }
   },
 
   computed: {
     initials() {
-      if (!this.rescuer.name) return ''
-      return this.rescuer.name
+      if (!this.user.name) return ''
+      return this.user.name
         .split(' ')
         .map(n => n[0])
         .join('')
@@ -124,8 +107,32 @@ export default {
   },
 
   mounted() {
-    console.log('Rescuer ID:', this.rescuerId)
+    const path = window.location.pathname.split('/')
+    this.userId = path[2] // /rescuers/2/view
+
+    console.log("USER ID:", this.userId)
+
+    this.fetchUser()
   },
 
+  methods: {
+    fetchUser() {
+      this.loading = true
+      this.error = false
+      axios.get(`/api/rescuers/${this.userId}/view`)
+        .then(res => {
+          // FULL USER OBJECT
+          this.user = res.data
+        })
+        .catch(err => {
+          console.log(err)
+          this.error = true
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    }
+
+  }
 }
 </script>

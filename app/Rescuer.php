@@ -26,5 +26,9 @@ class Rescuer extends Model
         return $this->belongsToMany(\App\Incident::class, 'incident_rescuer');
     }
 
-
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
+ 
 }

@@ -26,6 +26,7 @@
             <h3 class="font-semibold text-gray-800 dark:text-white">
               {{ incident.type }}
             </h3>
+
             <span :class="statusClass(incident.status)">
               {{ incident.status }}
             </span>
@@ -57,10 +58,12 @@
       <div id="map" class="w-full h-full"></div>
 
       <!-- INFO CARD -->
-      <div v-if="selectedIncident"
-        class="absolute top-10 left-5 bg-white p-4 rounded shadow w-80">
-
+      <div
+        v-if="selectedIncident"
+        class="absolute top-10 left-5 bg-white p-4 rounded shadow w-80"
+      >
         <h3 class="font-bold">{{ selectedIncident.type }}</h3>
+
         <p><strong>Name:</strong> {{ selectedIncident.name || 'N/A' }}</p>
         <p><strong>Child:</strong> {{ selectedIncident.child || 'N/A' }}</p>
         <p><strong>Guardian:</strong> {{ formatGuardian(selectedIncident.guardian) }}</p>
@@ -75,31 +78,37 @@
           Dispatch Now
         </button>
 
-        <button v-else disabled
-          class="w-full mt-3 bg-gray-400 text-white py-2 rounded">
+        <button
+          v-else
+          disabled
+          class="w-full mt-3 bg-gray-400 text-white py-2 rounded"
+        >
           Already Dispatched
         </button>
-
       </div>
     </div>
 
     <!-- MEDIA MODAL -->
-    <div v-if="showModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-
+    <div
+      v-if="showModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
+    >
       <div class="bg-white rounded-xl w-full max-w-3xl p-4 relative">
 
-        <button @click="closeModal"
-          class="absolute top-2 right-2 text-xl">✕</button>
+        <button @click="closeModal" class="absolute top-2 right-2 text-xl">
+          ✕
+        </button>
 
         <h2 class="text-lg font-bold mb-4">
           {{ modalType === 'photo' ? 'Photo View' : 'Media View' }}
         </h2>
 
         <div v-if="modalType === 'photo'">
-          <img v-if="selectedIncident.photo_url"
+          <img
+            v-if="selectedIncident.photo_url"
             :src="selectedIncident.photo_url"
-            class="w-full rounded" />
+            class="w-full rounded"
+          />
         </div>
 
         <div v-if="modalType === 'media'">
@@ -112,9 +121,10 @@
     </div>
 
     <!-- ASSIGN MODAL -->
-    <div v-if="showAssignModal"
-      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-
+    <div
+      v-if="showAssignModal"
+      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center"
+    >
       <div class="bg-white rounded-xl p-5 w-full max-w-md">
 
         <h2 class="text-lg font-bold mb-3">Assign Rescuers</h2>
@@ -123,36 +133,33 @@
           {{ selectedIncident.type }} rescuers only
         </p>
 
-        <!-- NEAREST -->
         <div v-if="nearestRescuer" class="text-green-600 text-sm mb-2">
           🚑 Nearest: {{ nearestRescuer.name }}
         </div>
 
-        <!-- MULTI SELECT -->
-       <div class="space-y-2 max-h-60 overflow-y-auto">
+        <div class="space-y-2 max-h-60 overflow-y-auto">
 
-  <div
-    v-for="r in filteredRescuers"
-    :key="r.id"
-    class="flex items-center gap-2 p-2 border rounded hover:bg-gray-50"
-  >
-    <input
-      type="checkbox"
-      :value="r.id"
-      v-model="selectedRescuerId"
-      class="w-4 h-4"
-    />
+          <div
+            v-for="r in filteredRescuers"
+            :key="r.id"
+            class="flex items-center gap-2 p-2 border rounded hover:bg-gray-50"
+          >
+            <input
+              type="checkbox"
+              :value="r.id"
+              v-model="selectedRescuerId"
+              class="w-4 h-4"
+            />
 
-    <div>
-      <p class="font-semibold">{{ r.name }}</p>
-      <p class="text-xs text-gray-500">
-        {{ r.emergency?.name }}
-      </p>
-    </div>
+            <div>
+              <p class="font-semibold">{{ r.name }}</p>
+              <p class="text-xs text-gray-500">
+                {{ r.emergency?.name }}
+              </p>
+            </div>
+          </div>
 
-  </div>
-
-</div>
+        </div>
 
         <button
           @click="confirmDispatch"
@@ -185,7 +192,7 @@ export default {
       modalType: null,
 
       showAssignModal: false,
-      selectedRescuerId: [],  
+      selectedRescuerId: [],
       dispatchingIncidentId: null,
       nearestRescuer: null,
 
@@ -252,10 +259,31 @@ export default {
       this.showModal = false
     },
 
+    // ✅ UPDATED FUNCTION (WITH REDIRECT)
     selectIncident(incident) {
       this.selectedIncident = incident
-    },
 
+      const destination = {
+        lat: parseFloat(incident.latitude),
+        lng: parseFloat(incident.longitude)
+      }
+
+      this.clearMarkers()
+      if (window.google && this.map) {
+        const marker = new google.maps.Marker({
+          position: destination,
+          map: this.map,
+          icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        })
+
+        this.markers.push(marker)
+        this.map.panTo(destination)
+        this.map.setZoom(15)
+      }
+
+      this.goToLocations(incident)
+    },
+ 
     openAssignModal(incident) {
       this.selectedIncident = incident
       this.dispatchingIncidentId = incident.id
@@ -276,7 +304,8 @@ export default {
     },
 
     confirmDispatch() {
-      if (!this.selectedRescuerId.length) return alert("Select rescuer")
+      if (!this.selectedRescuerId.length)
+        return alert("Select rescuer")
 
       axios.post(`/api/incidents/${this.dispatchingIncidentId}/dispatch`, {
         rescuer_ids: this.selectedRescuerId
@@ -297,7 +326,7 @@ export default {
       if (window.google) return this.initMap()
 
       const script = document.createElement("script")
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA"
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyASPPDUIdUILFjE8aYPaL9ayog8QqE7SI0"
       script.onload = this.initMap
       document.head.appendChild(script)
     },
@@ -307,6 +336,11 @@ export default {
         center: { lat: 15, lng: 121 },
         zoom: 10
       })
+    },
+
+    clearMarkers() {
+      this.markers.forEach(m => m.setMap(null))
+      this.markers = []
     },
 
     statusClass(status) {

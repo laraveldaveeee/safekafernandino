@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Rescuer;
+use App\User;
 class RescuersController extends Controller
 {
     public function index()
@@ -11,8 +12,8 @@ class RescuersController extends Controller
         return view('rescuers.index');
     }
 
-    public function show(Rescuer $rescuer)
+    public function show(User $user)
     {
-        return view('rescuers.show', compact('rescuer'));
+        return view('rescuers.show', compact('user'));
     }
 }

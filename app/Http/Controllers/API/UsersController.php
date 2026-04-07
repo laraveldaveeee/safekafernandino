@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\User;
 use App\Admin;
+use App\Role;
 class UsersController extends Controller
 {
     public function index()
@@ -20,6 +21,8 @@ class UsersController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6'
         ]);
+
+        $role = Role::where('name', 'ADMINISTRATOR')->first();
 
         $admin = Admin::create([
             'name'  => $request->name,
@@ -36,6 +39,7 @@ class UsersController extends Controller
             'password' => bcrypt($request->password),
             'status'    => 'confirmed'
         ]);
+     $user->role()->associate($role)->save();
 
         return response()->json([
             'message' => 'User created successfully',
@@ -70,6 +74,8 @@ class UsersController extends Controller
             'address' => 'nullable',
             'birthdate' => 'nullable|date',
         ]);
+
+        $role = Role::where('name', 'ADMINISTRATOR')->first();
         // Update Admin fields (assuming admin exists)
         if ($user->admin) {
             $user->admin->update([
@@ -89,6 +95,7 @@ class UsersController extends Controller
             $userData['password'] = bcrypt($request->password);
         }
         $user->update($userData);
+        $user->role()->associate($role)->save();
         return response()->json([
             'message' => 'User updated successfully',
             'user' => $user->load('admin')

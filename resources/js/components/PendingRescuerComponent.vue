@@ -33,7 +33,7 @@
               ID
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-32">
-              Type
+              Role/Type
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300">
               Name
@@ -52,25 +52,25 @@
 
         <!-- BODY -->
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-          <tr v-for="rescuer in rescuers" :key="rescuer.id"
+          <tr v-for="user in rescuers" :key="user.id"
               class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
 
-            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-16">{{ rescuer.id }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-32">{{ rescuer.type }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate">{{ rescuer.name }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40">{{ rescuer.contact }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-16">{{ user.id }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-32">{{ user.role.name }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate">{{ user.name }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40">{{ user.rescuer.contact }}</td>
 
             <td class="px-6 py-4 w-32">
               <span class="px-2 py-1 rounded text-xs font-medium
                            bg-yellow-100 text-yellow-800
                            dark:bg-yellow-900 dark:text-yellow-300">
-                {{ rescuer.status }}
+                {{ user.status }}
               </span>
             </td>
 
             <!-- ACTION -->
             <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40 text-right">
-              <a :href="'/rescuers-pending/' + rescuer.id + '/manage'"
+              <a :href="'/rescuers-pending/' + user.id + '/manage'"
                  class="inline-flex items-center gap-1 px-3 py-1.5 
                         bg-blue-50 text-blue-700 
                         dark:bg-blue-900 dark:text-blue-300

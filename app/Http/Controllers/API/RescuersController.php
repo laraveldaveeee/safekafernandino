@@ -5,13 +5,17 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Rescuer;
+use App\User;
 class RescuersController extends Controller
 {
     public function index()
     {
-        $rescuers = Rescuer::with('emergency')->where('status', 'approved')->get();
+        $users = User::with('rescuer')
+                     ->where('status', 'approved')
+                     ->whereNotIn('role_id', [1,5])
+                     ->get();
 
-        return $rescuers;
+        return $users;
     }
 
     public function store(Request $request)
@@ -45,9 +49,9 @@ class RescuersController extends Controller
         ]);
     }
 
-    public function show(Rescuer $rescuer)
+    public function show(User $user)
     {
-        return $rescuer;
+        return $user->load('rescuer', 'role');
     }
 }
     

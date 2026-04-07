@@ -25,6 +25,8 @@
       </div>
 
       <div id="app">
-        <rescuer-profile :rescuer-id="{{ $rescuer->id }}"></rescuer-profile>
+        <rescuer-profile :user-id="{{ $user->id }}"></rescuer-profile>
+        
       </div>
+
 @endsection

@@ -9,7 +9,7 @@ use App\User;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function apiLogin(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -23,9 +23,7 @@ class AuthController extends Controller
                 'message' => 'Invalid credentials'
             ], 401);
         }
-
         $token = $user->createToken('api-token')->plainTextToken;
-
         return response()->json([
             'message' => 'Login successful',
             'token' => $token,

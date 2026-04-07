@@ -2259,8 +2259,25 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     closeModal: function closeModal() {
       this.showModal = false;
     },
+    // ✅ UPDATED FUNCTION (WITH REDIRECT)
     selectIncident: function selectIncident(incident) {
       this.selectedIncident = incident;
+      var destination = {
+        lat: parseFloat(incident.latitude),
+        lng: parseFloat(incident.longitude)
+      };
+      this.clearMarkers();
+      if (window.google && this.map) {
+        var marker = new google.maps.Marker({
+          position: destination,
+          map: this.map,
+          icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+        });
+        this.markers.push(marker);
+        this.map.panTo(destination);
+        this.map.setZoom(15);
+      }
+      this.goToLocations(incident);
     },
     openAssignModal: function openAssignModal(incident) {
       this.selectedIncident = incident;
@@ -2293,7 +2310,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
     loadMap: function loadMap() {
       if (window.google) return this.initMap();
       var script = document.createElement("script");
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGVyoXkw7WNkHwmU9WytzLRNV45OLkknA";
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyASPPDUIdUILFjE8aYPaL9ayog8QqE7SI0";
       script.onload = this.initMap;
       document.head.appendChild(script);
     },
@@ -2305,6 +2322,12 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
         },
         zoom: 10
       });
+    },
+    clearMarkers: function clearMarkers() {
+      this.markers.forEach(function (m) {
+        return m.setMap(null);
+      });
+      this.markers = [];
     },
     statusClass: function statusClass(status) {
       if (status === 'pending') return 'text-yellow-600';
@@ -2327,102 +2350,89 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
-    rescuerId: {
-      type: Number,
-      required: true
-    }
+    userId: Number
   },
   data: function data() {
     return {
-      rescuer: {
-        name: '',
-        type: '',
-        email: '',
-        contact: '',
-        station_location: '',
-        status: '',
-        gender: '',
-        is_active: 0
-      }
+      user: {
+        rescuer: {},
+        role: {}
+      },
+      roles: [],
+      selectedRoleId: ''
     };
   },
   computed: {
     initials: function initials() {
-      if (!this.rescuer.name) return '';
-      return this.rescuer.name.split(' ').map(function (n) {
+      if (!this.user.name) return '';
+      return this.user.name.split(' ').map(function (n) {
         return n[0];
       }).join('').toUpperCase();
     }
   },
   mounted: function mounted() {
-    console.log('Rescuer ID:', this.rescuerId);
-    this.fetchRescuer();
+    this.fetchUser();
   },
   methods: {
-    // FETCH DATA
-    fetchRescuer: function fetchRescuer() {
+    // FETCH USER + ROLES
+    fetchUser: function fetchUser() {
       var _this = this;
-      axios.get("/api/rescuers-pending/".concat(this.rescuerId, "/manage")).then(function (res) {
-        _this.rescuer = res.data;
-      })["catch"](function (err) {
-        console.error(err);
-        window.Swal.fire('Error', 'Failed to load rescuer', 'error');
+      axios.get("/api/rescuers-pending/".concat(this.userId, "/manage")).then(function (res) {
+        _this.user = res.data.user;
+        _this.roles = res.data.roles;
+        _this.selectedRoleId = res.data.user.role_id || '';
+      })["catch"](function () {
+        Swal.fire('Error', 'Failed to load data', 'error');
       });
     },
-    // APPROVE
+    // 🚀 APPROVE + ASSIGN ROLE (COMBINED)
     approveRescuer: function approveRescuer() {
       var _this2 = this;
-      window.Swal.fire({
-        title: 'Approve Rescuer?',
-        text: "This will activate the rescuer.",
+      if (!this.selectedRoleId) {
+        Swal.fire('Error', 'Please select a role', 'error');
+        return;
+      }
+      Swal.fire({
+        title: 'Approve User?',
+        text: 'This will assign role and approve user',
         icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, approve',
-        cancelButtonText: 'Cancel'
+        showCancelButton: true
       }).then(function (result) {
-        if (result.isConfirmed) {
-          axios.patch("/api/rescuers/".concat(_this2.rescuerId, "/approve")).then(function () {
-            window.Swal.fire({
-              icon: 'success',
-              title: 'Approved!',
-              timer: 1500,
-              showConfirmButton: false
-            });
-            setTimeout(function () {
-              window.location.href = '/rescuers-pending';
-            }, 1500);
-          })["catch"](function () {
-            window.Swal.fire('Error', 'Approve failed', 'error');
+        if (!result.isConfirmed) return;
+        axios.patch("/api/rescuers/".concat(_this2.userId, "/approve"), {
+          role_id: _this2.selectedRoleId
+        }).then(function (res) {
+          Swal.fire({
+            icon: 'success',
+            title: 'User approved successfully',
+            showConfirmButton: false,
+            timer: 1200
           });
-        }
+
+          // 🚀 REDIRECT (NO VUE ROUTER)
+          setTimeout(function () {
+            window.location.href = '/rescuers-pending';
+          }, 1200);
+        })["catch"](function () {
+          Swal.fire('Error', 'Failed to approve user', 'error');
+        });
       });
     },
-    //  DECLINE
+    // DECLINE
     declineRescuer: function declineRescuer() {
       var _this3 = this;
-      window.Swal.fire({
-        title: 'Decline Rescuer?',
-        text: "This action cannot be undone.",
+      Swal.fire({
+        title: 'Decline user?',
         icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, decline',
-        cancelButtonText: 'Cancel'
+        showCancelButton: true
       }).then(function (result) {
-        if (result.isConfirmed) {
-          axios.patch("/api/rescuers/".concat(_this3.rescuerId, "/decline")).then(function () {
-            window.Swal.fire({
-              icon: 'success',
-              title: 'Declined!',
-              timer: 1500,
-              showConfirmButton: false
-            });
-            setTimeout(function () {
-              window.location.href = '/rescuers-pending';
-            }, 1500);
-          })["catch"](function () {
-            window.Swal.fire('Error', 'Decline failed', 'error');
-          });
-        }
+        if (!result.isConfirmed) return;
+        axios.patch("/api/rescuers/".concat(_this3.userId, "/decline")).then(function () {
+          Swal.fire('Declined', '', 'success');
+          setTimeout(function () {
+            return location.href = '/rescuers-pending';
+          }, 1000);
+        });
       });
     }
   }
@@ -2471,37 +2481,51 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: {
-    rescuerId: {
-      type: Number,
-      required: true
-    }
-  },
   data: function data() {
     return {
-      rescuer: {
-        name: '',
-        type: '',
-        email: '',
-        contact: '',
-        station_location: '',
-        status: '',
-        gender: '',
-        is_active: 0
-      }
+      user: {
+        rescuer: {},
+        role: {}
+      },
+      loading: false,
+      error: false,
+      userId: null
     };
   },
   computed: {
     initials: function initials() {
-      if (!this.rescuer.name) return '';
-      return this.rescuer.name.split(' ').map(function (n) {
+      if (!this.user.name) return '';
+      return this.user.name.split(' ').map(function (n) {
         return n[0];
       }).join('').toUpperCase();
     }
   },
   mounted: function mounted() {
-    console.log('Rescuer ID:', this.rescuerId);
+    var path = window.location.pathname.split('/');
+    this.userId = path[2]; // /rescuers/2/view
+
+    console.log("USER ID:", this.userId);
+    this.fetchUser();
+  },
+  methods: {
+    fetchUser: function fetchUser() {
+      var _this = this;
+      this.loading = true;
+      this.error = false;
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/api/rescuers/".concat(this.userId, "/view")).then(function (res) {
+        // FULL USER OBJECT
+        _this.user = res.data;
+      })["catch"](function (err) {
+        console.log(err);
+        _this.error = true;
+      })["finally"](function () {
+        _this.loading = false;
+      });
+    }
   }
 });
 
@@ -2523,16 +2547,19 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
-    this.fetchIncidents();
+    this.fetchRescuers();
   },
   methods: {
-    fetchIncidents: function fetchIncidents() {
+    fetchRescuers: function fetchRescuers() {
       var _this = this;
-      axios.get('/api/rescuers').then(function (response) {
-        _this.rescuers = response.data;
-        console.log(response.data);
-      })["catch"](function (error) {
-        console.log(error);
+      axios.get('/api/rescuers').then(function (res) {
+        // FILTER ONLY APPROVED
+        _this.rescuers = res.data.filter(function (user) {
+          var _user$rescuer;
+          return ((_user$rescuer = user.rescuer) === null || _user$rescuer === void 0 ? void 0 : _user$rescuer.status) === 'approved';
+        });
+      })["catch"](function (err) {
+        console.log(err);
       });
     }
   }
@@ -3105,11 +3132,11 @@ var render = function render() {
       staticClass: "flex justify-between items-center"
     }, [_c("h3", {
       staticClass: "font-semibold text-gray-800 dark:text-white"
-    }, [_vm._v("\n              " + _vm._s(incident.type) + "\n            ")]), _vm._v(" "), _c("span", {
+    }, [_vm._v("\n            " + _vm._s(incident.type) + "\n          ")]), _vm._v(" "), _c("span", {
       "class": _vm.statusClass(incident.status)
-    }, [_vm._v("\n              " + _vm._s(incident.status) + "\n            ")])]), _vm._v(" "), _c("p", {
+    }, [_vm._v("\n            " + _vm._s(incident.status) + "\n          ")])]), _vm._v(" "), _c("p", {
       staticClass: "text-sm text-gray-500 mt-1"
-    }, [_vm._v("\n            " + _vm._s(incident.locations) + "\n          ")]), _vm._v(" "), _c("button", {
+    }, [_vm._v("\n          " + _vm._s(incident.locations) + "\n        ")]), _vm._v(" "), _c("button", {
       staticClass: "px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded",
       on: {
         click: function click($event) {
@@ -3117,7 +3144,7 @@ var render = function render() {
           return _vm.openModal(incident, "photo");
         }
       }
-    }, [_vm._v("\n            Photo\n          ")]), _vm._v(" "), _c("button", {
+    }, [_vm._v("\n          Photo\n        ")]), _vm._v(" "), _c("button", {
       staticClass: "px-2 py-1 text-xs bg-purple-50 text-purple-700 rounded",
       on: {
         click: function click($event) {
@@ -3125,7 +3152,7 @@ var render = function render() {
           return _vm.openModal(incident, "media");
         }
       }
-    }, [_vm._v("\n            Media\n          ")])]);
+    }, [_vm._v("\n          Media\n        ")])]);
   }), 0)]), _vm._v(" "), _c("div", {
     staticClass: "w-2/3 relative"
   }, [_c("div", {
@@ -3144,12 +3171,12 @@ var render = function render() {
         return _vm.openAssignModal(_vm.selectedIncident);
       }
     }
-  }, [_vm._v("\n          Dispatch Now\n        ")]) : _c("button", {
+  }, [_vm._v("\n        Dispatch Now\n      ")]) : _c("button", {
     staticClass: "w-full mt-3 bg-gray-400 text-white py-2 rounded",
     attrs: {
       disabled: ""
     }
-  }, [_vm._v("\n          Already Dispatched\n        ")])]) : _vm._e()]), _vm._v(" "), _vm.showModal ? _c("div", {
+  }, [_vm._v("\n        Already Dispatched\n      ")])]) : _vm._e()]), _vm._v(" "), _vm.showModal ? _c("div", {
     staticClass: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
   }, [_c("div", {
     staticClass: "bg-white rounded-xl w-full max-w-3xl p-4 relative"
@@ -3158,9 +3185,9 @@ var render = function render() {
     on: {
       click: _vm.closeModal
     }
-  }, [_vm._v("✕")]), _vm._v(" "), _c("h2", {
+  }, [_vm._v("\n        ✕\n      ")]), _vm._v(" "), _c("h2", {
     staticClass: "text-lg font-bold mb-4"
-  }, [_vm._v("\n          " + _vm._s(_vm.modalType === "photo" ? "Photo View" : "Media View") + "\n        ")]), _vm._v(" "), _vm.modalType === "photo" ? _c("div", [_vm.selectedIncident.photo_url ? _c("img", {
+  }, [_vm._v("\n        " + _vm._s(_vm.modalType === "photo" ? "Photo View" : "Media View") + "\n      ")]), _vm._v(" "), _vm.modalType === "photo" ? _c("div", [_vm.selectedIncident.photo_url ? _c("img", {
     staticClass: "w-full rounded",
     attrs: {
       src: _vm.selectedIncident.photo_url
@@ -3182,9 +3209,9 @@ var render = function render() {
     staticClass: "text-lg font-bold mb-3"
   }, [_vm._v("Assign Rescuers")]), _vm._v(" "), _c("p", {
     staticClass: "text-sm text-gray-500 mb-2"
-  }, [_vm._v("\n          " + _vm._s(_vm.selectedIncident.type) + " rescuers only\n        ")]), _vm._v(" "), _vm.nearestRescuer ? _c("div", {
+  }, [_vm._v("\n        " + _vm._s(_vm.selectedIncident.type) + " rescuers only\n      ")]), _vm._v(" "), _vm.nearestRescuer ? _c("div", {
     staticClass: "text-green-600 text-sm mb-2"
-  }, [_vm._v("\n          🚑 Nearest: " + _vm._s(_vm.nearestRescuer.name) + "\n        ")]) : _vm._e(), _vm._v(" "), _c("div", {
+  }, [_vm._v("\n        🚑 Nearest: " + _vm._s(_vm.nearestRescuer.name) + "\n      ")]) : _vm._e(), _vm._v(" "), _c("div", {
     staticClass: "space-y-2 max-h-60 overflow-y-auto"
   }, _vm._l(_vm.filteredRescuers, function (r) {
     var _r$emergency;
@@ -3228,20 +3255,20 @@ var render = function render() {
       staticClass: "font-semibold"
     }, [_vm._v(_vm._s(r.name))]), _vm._v(" "), _c("p", {
       staticClass: "text-xs text-gray-500"
-    }, [_vm._v("\n        " + _vm._s((_r$emergency = r.emergency) === null || _r$emergency === void 0 ? void 0 : _r$emergency.name) + "\n      ")])])]);
+    }, [_vm._v("\n              " + _vm._s((_r$emergency = r.emergency) === null || _r$emergency === void 0 ? void 0 : _r$emergency.name) + "\n            ")])])]);
   }), 0), _vm._v(" "), _c("button", {
     staticClass: "w-full bg-green-600 text-white py-2 rounded",
     on: {
       click: _vm.confirmDispatch
     }
-  }, [_vm._v("\n          Confirm Dispatch\n        ")]), _vm._v(" "), _c("button", {
+  }, [_vm._v("\n        Confirm Dispatch\n      ")]), _vm._v(" "), _c("button", {
     staticClass: "w-full mt-2 text-gray-500",
     on: {
       click: function click($event) {
         _vm.showAssignModal = false;
       }
     }
-  }, [_vm._v("\n          Cancel\n        ")])])]) : _vm._e()]);
+  }, [_vm._v("\n        Cancel\n      ")])])]) : _vm._e()]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
@@ -3250,7 +3277,7 @@ var staticRenderFns = [function () {
     staticClass: "p-4 bg-white dark:bg-gray-800 shadow"
   }, [_c("h2", {
     staticClass: "text-xl font-bold text-gray-800 dark:text-white"
-  }, [_vm._v("\n          Incident Dashboard\n        ")])]);
+  }, [_vm._v("\n        Incident Dashboard\n      ")])]);
 }];
 render._withStripped = true;
 
@@ -3269,59 +3296,76 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
 var render = function render() {
+  var _vm$user$role, _vm$user$rescuer, _vm$user$rescuer2, _vm$user$rescuer3, _vm$user$rescuer4, _vm$user$rescuer5;
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300"
+    staticClass: "bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6"
   }, [_c("div", {
     staticClass: "flex items-center space-x-6"
   }, [_c("div", {
-    staticClass: "w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl font-bold text-blue-600 dark:text-blue-400"
+    staticClass: "w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600"
   }, [_vm._v("\n      " + _vm._s(_vm.initials) + "\n    ")]), _vm._v(" "), _c("div", [_c("h2", {
-    staticClass: "text-xl font-semibold text-gray-800 dark:text-gray-100"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.name || "Loading...") + "\n      ")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-500 dark:text-gray-400"
-  }, [_vm._v("\n        Type : " + _vm._s(_vm.rescuer.type || "-") + "\n      ")]), _vm._v(" "), _vm.rescuer.is_active == 1 ? _c("span", {
-    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded-full"
+    staticClass: "text-xl font-semibold text-gray-900 dark:text-white"
+  }, [_vm._v("\n        " + _vm._s(_vm.user.name || "Loading...") + "\n      ")]), _vm._v(" "), _c("p", {
+    staticClass: "text-gray-500 text-gray-900 dark:text-white"
+  }, [_vm._v("\n        Role: " + _vm._s(((_vm$user$role = _vm.user.role) === null || _vm$user$role === void 0 ? void 0 : _vm$user$role.name) || "-") + "\n      ")]), _vm._v(" "), ((_vm$user$rescuer = _vm.user.rescuer) === null || _vm$user$rescuer === void 0 ? void 0 : _vm$user$rescuer.is_active) == 1 ? _c("span", {
+    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full"
   }, [_vm._v("\n        Active\n      ")]) : _c("span", {
-    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded-full"
+    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 rounded-full"
   }, [_vm._v("\n        Inactive\n      ")])])]), _vm._v(" "), _c("div", {
-    staticClass: "border-t border-gray-200 dark:border-gray-700 my-6"
+    staticClass: "border-t my-6"
   }), _vm._v(" "), _c("div", {
-    staticClass: "grid grid-cols-1 md:grid-cols-2 gap-6"
-  }, [_c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Email")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v(_vm._s(_vm.rescuer.email || "-"))])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Contact Number")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.contact || "N/A") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Address")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.station_location || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Status")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.status || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Gender")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.gender || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Station Location")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.station_location || "-") + "\n      ")])])]), _vm._v(" "), _c("div", {
-    staticClass: "mt-6 flex space-x-3"
+    staticClass: "grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-900 dark:text-white"
+  }, [_c("div", [_c("label", [_vm._v("Email")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(_vm.user.email || "-"))])]), _vm._v(" "), _c("div", [_c("label", [_vm._v("Contact")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(((_vm$user$rescuer2 = _vm.user.rescuer) === null || _vm$user$rescuer2 === void 0 ? void 0 : _vm$user$rescuer2.contact) || "-"))])]), _vm._v(" "), _c("div", [_c("label", [_vm._v("Address")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(((_vm$user$rescuer3 = _vm.user.rescuer) === null || _vm$user$rescuer3 === void 0 ? void 0 : _vm$user$rescuer3.station_location) || "-"))])]), _vm._v(" "), _c("div", [_c("label", [_vm._v("Status")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(((_vm$user$rescuer4 = _vm.user.rescuer) === null || _vm$user$rescuer4 === void 0 ? void 0 : _vm$user$rescuer4.status) || "-"))])]), _vm._v(" "), _c("div", [_c("label", [_vm._v("Gender")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(((_vm$user$rescuer5 = _vm.user.rescuer) === null || _vm$user$rescuer5 === void 0 ? void 0 : _vm$user$rescuer5.gender) || "-"))])])]), _vm._v(" "), _c("div", {
+    staticClass: "mt-6 border-t pt-4 text-gray-900 dark:text-white"
+  }, [_c("label", {
+    staticClass: "text-sm text-gray-500 text-gray-900 dark:text-white"
+  }, [_vm._v("\n      Select Role to Approve\n    ")]), _vm._v(" "), _c("div", {
+    staticClass: "flex space-x-3 mt-2"
+  }, [_c("select", {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: _vm.selectedRoleId,
+      expression: "selectedRoleId"
+    }],
+    staticClass: "border rounded-lg px-3 py-2 w-48 dark:bg-gray-700 dark:text-white",
+    on: {
+      change: function change($event) {
+        var $$selectedVal = Array.prototype.filter.call($event.target.options, function (o) {
+          return o.selected;
+        }).map(function (o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val;
+        });
+        _vm.selectedRoleId = $event.target.multiple ? $$selectedVal : $$selectedVal[0];
+      }
+    }
+  }, [_c("option", {
+    attrs: {
+      disabled: "",
+      value: ""
+    }
+  }, [_vm._v("Select role")]), _vm._v(" "), _vm._l(_vm.roles, function (role) {
+    return _c("option", {
+      key: role.id,
+      domProps: {
+        value: role.id
+      }
+    }, [_vm._v("\n          " + _vm._s(role.name) + "\n        ")]);
+  })], 2)])]), _vm._v(" "), _c("div", {
+    staticClass: "mt-6"
   }, [_c("button", {
-    staticClass: "bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition",
+    staticClass: "bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50",
+    attrs: {
+      disabled: !_vm.selectedRoleId
+    },
     on: {
       click: _vm.approveRescuer
     }
-  }, [_vm._v("\n      Approve\n    ")]), _vm._v(" "), _c("button", {
-    staticClass: "bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition",
+  }, [_vm._v("\n         Assign & Approve\n      ")]), _vm._v(" "), _c("button", {
+    staticClass: "bg-red-500 text-white px-4 py-2 rounded-lg",
     on: {
       click: _vm.declineRescuer
     }
@@ -3377,28 +3421,28 @@ var render = function render() {
     staticClass: "min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-700"
   }, [_vm._m(0), _vm._v(" "), _c("tbody", {
     staticClass: "divide-y divide-gray-200 dark:divide-gray-700"
-  }, [_vm._l(_vm.rescuers, function (rescuer) {
+  }, [_vm._l(_vm.rescuers, function (user) {
     return _c("tr", {
-      key: rescuer.id,
+      key: user.id,
       staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition"
     }, [_c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-16"
-    }, [_vm._v(_vm._s(rescuer.id))]), _vm._v(" "), _c("td", {
+    }, [_vm._v(_vm._s(user.id))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-32"
-    }, [_vm._v(_vm._s(rescuer.type))]), _vm._v(" "), _c("td", {
+    }, [_vm._v(_vm._s(user.role.name))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate"
-    }, [_vm._v(_vm._s(rescuer.name))]), _vm._v(" "), _c("td", {
+    }, [_vm._v(_vm._s(user.name))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40"
-    }, [_vm._v(_vm._s(rescuer.contact))]), _vm._v(" "), _c("td", {
+    }, [_vm._v(_vm._s(user.rescuer.contact))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 w-32"
     }, [_c("span", {
       staticClass: "px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-    }, [_vm._v("\n              " + _vm._s(rescuer.status) + "\n            ")])]), _vm._v(" "), _c("td", {
+    }, [_vm._v("\n              " + _vm._s(user.status) + "\n            ")])]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40 text-right"
     }, [_c("a", {
       staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition",
       attrs: {
-        href: "/rescuers-pending/" + rescuer.id + "/manage"
+        href: "/rescuers-pending/" + user.id + "/manage"
       }
     }, [_c("svg", {
       staticClass: "w-4 h-4",
@@ -3438,7 +3482,7 @@ var staticRenderFns = [function () {
     staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-16"
   }, [_vm._v("\n            ID\n          ")]), _vm._v(" "), _c("th", {
     staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-32"
-  }, [_vm._v("\n            Type\n          ")]), _vm._v(" "), _c("th", {
+  }, [_vm._v("\n            Role/Type\n          ")]), _vm._v(" "), _c("th", {
     staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300"
   }, [_vm._v("\n            Name\n          ")]), _vm._v(" "), _c("th", {
     staticClass: "px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-40"
@@ -3465,51 +3509,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
 var render = function render() {
+  var _vm$user$role, _vm$user$rescuer, _vm$user$rescuer2, _vm$user$rescuer3, _vm$user$rescuer4, _vm$user$rescuer5;
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300"
-  }, [_c("div", {
+    staticClass: "bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6"
+  }, [_vm.loading ? _c("div", {
+    staticClass: "text-center text-gray-500 py-10"
+  }, [_vm._v("\n    Loading rescuer profile...\n  ")]) : _vm.error ? _c("div", {
+    staticClass: "text-center text-red-500 py-10"
+  }, [_vm._v("\n    Failed to load rescuer profile\n  ")]) : _c("div", [_c("div", {
     staticClass: "flex items-center space-x-6"
   }, [_c("div", {
-    staticClass: "w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl font-bold text-blue-600 dark:text-blue-400"
-  }, [_vm._v("\n      " + _vm._s(_vm.initials) + "\n    ")]), _vm._v(" "), _c("div", [_c("h2", {
-    staticClass: "text-xl font-semibold text-gray-800 dark:text-gray-100"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.name || "Loading...") + "\n      ")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-500 dark:text-gray-400"
-  }, [_vm._v("\n        Type : " + _vm._s(_vm.rescuer.type || "-") + "\n      ")]), _vm._v(" "), _vm.rescuer.is_active == 1 ? _c("span", {
-    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded-full"
-  }, [_vm._v("\n        Active\n      ")]) : _c("span", {
-    staticClass: "inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded-full"
-  }, [_vm._v("\n        Inactive\n      ")])])]), _vm._v(" "), _c("div", {
-    staticClass: "border-t border-gray-200 dark:border-gray-700 my-6"
+    staticClass: "w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600"
+  }, [_vm._v("\n        " + _vm._s(_vm.initials) + "\n      ")]), _vm._v(" "), _c("div", [_c("h2", {
+    staticClass: "text-xl font-semibold text-gray-900 dark:text-white"
+  }, [_vm._v("\n          " + _vm._s(_vm.user.name) + "\n        ")]), _vm._v(" "), _c("p", {
+    staticClass: "text-gray-500 text-gray-900 dark:text-white"
+  }, [_vm._v("\n          Role: " + _vm._s(((_vm$user$role = _vm.user.role) === null || _vm$user$role === void 0 ? void 0 : _vm$user$role.name) || "-") + "\n        ")]), _vm._v(" "), _c("span", {
+    staticClass: "inline-block mt-2 px-3 py-1 text-sm rounded-full",
+    "class": ((_vm$user$rescuer = _vm.user.rescuer) === null || _vm$user$rescuer === void 0 ? void 0 : _vm$user$rescuer.status) === "approved" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700 text-gray-900 dark:text-white"
+  }, [_vm._v("\n          " + _vm._s(((_vm$user$rescuer2 = _vm.user.rescuer) === null || _vm$user$rescuer2 === void 0 ? void 0 : _vm$user$rescuer2.status) || "pending") + "\n        ")])])]), _vm._v(" "), _c("div", {
+    staticClass: "border-t my-6"
   }), _vm._v(" "), _c("div", {
-    staticClass: "grid grid-cols-1 md:grid-cols-2 gap-6"
-  }, [_c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Email")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v(_vm._s(_vm.rescuer.email || "-"))])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Contact Number")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.contact || "N/A") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Address")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.station_location || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Status")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.status || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Gender")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.gender || "-") + "\n      ")])]), _vm._v(" "), _c("div", [_c("label", {
-    staticClass: "text-sm text-gray-500 dark:text-gray-400"
-  }, [_vm._v("Station Location")]), _vm._v(" "), _c("p", {
-    staticClass: "text-gray-800 dark:text-gray-100 font-medium"
-  }, [_vm._v("\n        " + _vm._s(_vm.rescuer.station_location || "-") + "\n      ")])])])]);
+    staticClass: "grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-900 dark:text-white"
+  }, [_c("div", [_c("label", [_vm._v("Email")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(_vm.user.email || "-"))])]), _vm._v(" "), _c("div", [_c("label", [_vm._v("Contact")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(((_vm$user$rescuer3 = _vm.user.rescuer) === null || _vm$user$rescuer3 === void 0 ? void 0 : _vm$user$rescuer3.contact) || "-"))])]), _vm._v(" "), _c("div", [_c("label", [_vm._v("Address")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(((_vm$user$rescuer4 = _vm.user.rescuer) === null || _vm$user$rescuer4 === void 0 ? void 0 : _vm$user$rescuer4.station_location) || "-"))])]), _vm._v(" "), _c("div", [_c("label", [_vm._v("Gender")]), _vm._v(" "), _c("p", [_vm._v(_vm._s(((_vm$user$rescuer5 = _vm.user.rescuer) === null || _vm$user$rescuer5 === void 0 ? void 0 : _vm$user$rescuer5.gender) || "-"))])])])])]);
 };
 var staticRenderFns = [];
 render._withStripped = true;
@@ -3532,15 +3556,15 @@ var render = function render() {
   var _vm = this,
     _c = _vm._self._c;
   return _c("div", {
-    staticClass: "lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden transition-colors duration-300"
+    staticClass: "lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden"
   }, [_c("div", {
-    staticClass: "border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 px-6 py-4"
+    staticClass: "border-b px-6 py-4 bg-gray-50 dark:bg-gray-900"
   }, [_c("div", {
     staticClass: "flex items-center space-x-3"
   }, [_c("div", {
     staticClass: "p-2 bg-blue-100 dark:bg-blue-900 rounded-lg"
   }, [_c("svg", {
-    staticClass: "size-5 text-blue-600 dark:text-blue-400",
+    staticClass: "w-5 h-5 text-blue-600 dark:text-blue-400",
     attrs: {
       fill: "none",
       stroke: "currentColor",
@@ -3554,83 +3578,63 @@ var render = function render() {
       d: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
     }
   })])]), _vm._v(" "), _c("h3", {
-    staticClass: "text-lg font-semibold text-gray-900 dark:text-gray-100"
-  }, [_vm._v("\n        Rescuers List\n      ")])])]), _vm._v(" "), _c("div", {
-    staticClass: "bg-white dark:bg-gray-800 transition-colors duration-300"
+    staticClass: "text-lg font-semibold text-gray-900 dark:text-white"
+  }, [_vm._v("\n        Approved Rescuers\n      ")])])]), _vm._v(" "), _c("div", {
+    staticClass: "overflow-x-auto"
   }, [_c("table", {
-    staticClass: "min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-auto"
+    staticClass: "min-w-full divide-y divide-gray-200 dark:divide-gray-700"
   }, [_vm._m(0), _vm._v(" "), _c("tbody", {
-    staticClass: "bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
-  }, [_vm._l(_vm.rescuers, function (rescuer) {
+    staticClass: "bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 text-gray-900 dark:text-white"
+  }, [_vm._l(_vm.rescuers, function (user) {
+    var _user$rescuer, _user$rescuer2, _user$rescuer3;
     return _c("tr", {
-      key: rescuer.id,
+      key: user.id,
       staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition"
     }, [_c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
-    }, [_vm._v(_vm._s(rescuer.id))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
-    }, [_vm._v(_vm._s(rescuer.type))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
-    }, [_vm._v(_vm._s(rescuer.name))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
-    }, [_vm._v(_vm._s(rescuer.contact))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100"
-    }, [_vm._v(_vm._s(rescuer.status))]), _vm._v(" "), _c("td", {
-      staticClass: "px-6 py-4 text-sm text-right"
+      staticClass: "px-6 py-4 text-sm"
+    }, [_vm._v(_vm._s(user.id))]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm"
+    }, [_vm._v("\n            " + _vm._s(((_user$rescuer = user.rescuer) === null || _user$rescuer === void 0 ? void 0 : _user$rescuer.type) || "-") + "\n          ")]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm"
+    }, [_vm._v("\n            " + _vm._s(user.name) + "\n          ")]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm"
+    }, [_vm._v("\n            " + _vm._s(((_user$rescuer2 = user.rescuer) === null || _user$rescuer2 === void 0 ? void 0 : _user$rescuer2.contact) || "-") + "\n          ")]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-sm"
+    }, [_c("span", {
+      staticClass: "px-2 py-1 text-xs rounded-full bg-green-100 text-green-700"
+    }, [_vm._v("\n              " + _vm._s(((_user$rescuer3 = user.rescuer) === null || _user$rescuer3 === void 0 ? void 0 : _user$rescuer3.status) || "-") + "\n            ")])]), _vm._v(" "), _c("td", {
+      staticClass: "px-6 py-4 text-right"
     }, [_c("a", {
-      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition group",
+      staticClass: "inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100",
       attrs: {
-        href: "/rescuers/" + rescuer.id + "/view"
+        href: "/rescuers/".concat(user.id, "/view")
       }
-    }, [_c("svg", {
-      staticClass: "size-4 group-hover:scale-110 transition-transform",
-      attrs: {
-        fill: "none",
-        stroke: "currentColor",
-        viewBox: "0 0 24 24"
-      }
-    }, [_c("path", {
-      attrs: {
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "stroke-width": "2",
-        d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      }
-    }), _vm._v(" "), _c("path", {
-      attrs: {
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        "stroke-width": "2",
-        d: "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-      }
-    })]), _vm._v(" "), _c("span", {
-      staticClass: "text-sm"
-    }, [_vm._v("View Profile")])])])]);
+    }, [_c("span", [_vm._v("View Profile")])])])]);
   }), _vm._v(" "), _vm.rescuers.length === 0 ? _c("tr", [_c("td", {
-    staticClass: "text-center py-6 text-gray-500 dark:text-gray-400",
+    staticClass: "text-center py-6 text-gray-500",
     attrs: {
       colspan: "6"
     }
-  }, [_vm._v("\n            No rescuers found\n          ")])]) : _vm._e()], 2)])])]);
+  }, [_vm._v("\n            No approved rescuers found\n          ")])]) : _vm._e()], 2)])])]);
 };
 var staticRenderFns = [function () {
   var _vm = this,
     _c = _vm._self._c;
   return _c("thead", {
-    staticClass: "bg-gray-50 dark:bg-gray-700"
+    staticClass: "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
   }, [_c("tr", [_c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase"
   }, [_vm._v("ID")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase"
   }, [_vm._v("Type")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase"
   }, [_vm._v("Name")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase"
   }, [_vm._v("Contact")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
+    staticClass: "px-6 py-3 text-left text-xs font-medium uppercase"
   }, [_vm._v("Status")]), _vm._v(" "), _c("th", {
-    staticClass: "px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
-  }, [_vm._v("Actions")])])]);
+    staticClass: "px-6 py-3 text-right text-xs font-medium uppercase"
+  }, [_vm._v("Action")])])]);
 }];
 render._withStripped = true;
 

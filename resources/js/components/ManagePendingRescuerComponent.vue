@@ -1,34 +1,34 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 transition-colors duration-300">
+  <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
 
-    <!-- TOP SECTION -->
+    <!-- TOP INFO -->
     <div class="flex items-center space-x-6">
 
       <!-- AVATAR -->
-      <div class="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-3xl font-bold text-blue-600 dark:text-blue-400">
+      <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600">
         {{ initials }}
       </div>
 
-      <!-- BASIC INFO -->
+      <!-- USER INFO -->
       <div>
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100">
-          {{ rescuer.name || 'Loading...' }}
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+          {{ user.name || 'Loading...' }}
         </h2>
 
-        <p class="text-gray-500 dark:text-gray-400">
-          Type : {{ rescuer.type || '-' }}
+        <p class="text-gray-500 text-gray-900 dark:text-white">
+          Role: {{ user.role?.name || '-' }}
         </p>
 
         <span
-          v-if="rescuer.is_active == 1"
-          class="inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 rounded-full"
+          v-if="user.rescuer?.is_active == 1"
+          class="inline-block mt-2 px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full"
         >
           Active
         </span>
 
         <span
           v-else
-          class="inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded-full"
+          class="inline-block mt-2 px-3 py-1 text-sm bg-red-100 text-red-700 rounded-full"
         >
           Inactive
         </span>
@@ -36,102 +36,113 @@
 
     </div>
 
-    <!-- DIVIDER -->
-    <div class="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+    <div class="border-t my-6"></div>
 
-    <!-- DETAILS GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- DETAILS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-900 dark:text-white">
 
       <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Email</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">{{ rescuer.email || '-' }}</p>
+        <label>Email</label>
+        <p>{{ user.email || '-' }}</p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Contact Number</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.contact || 'N/A' }}
-        </p>
+        <label>Contact</label>
+        <p>{{ user.rescuer?.contact || '-' }}</p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Address</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.station_location || '-' }}
-        </p>
+        <label>Address</label>
+        <p>{{ user.rescuer?.station_location || '-' }}</p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Status</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.status || '-' }}
-        </p>
+        <label>Status</label>
+        <p>{{ user.rescuer?.status || '-' }}</p>
       </div>
 
       <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Gender</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.gender || '-' }}
-        </p>
-      </div>
-
-      <div>
-        <label class="text-sm text-gray-500 dark:text-gray-400">Station Location</label>
-        <p class="text-gray-800 dark:text-gray-100 font-medium">
-          {{ rescuer.station_location || '-' }}
-        </p>
+        <label>Gender</label>
+        <p>{{ user.rescuer?.gender || '-' }}</p>
       </div>
 
     </div>
 
-    <!-- ACTION BUTTONS -->
-    <div class="mt-6 flex space-x-3">
-      <button
-        @click="approveRescuer"
-        class="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition"
-      >
-        Approve
-      </button>
+    <!-- ROLE + APPROVE -->
+    <div class="mt-6 border-t pt-4 text-gray-900 dark:text-white">
 
+      <label class="text-sm text-gray-500 text-gray-900 dark:text-white">
+        Select Role to Approve
+      </label>
+
+      <div class="flex space-x-3 mt-2">
+
+        <!-- ROLE SELECT -->
+        <select
+          v-model="selectedRoleId"
+          class="border rounded-lg px-3 py-2 w-48 dark:bg-gray-700 dark:text-white "
+        >
+          <option disabled value="">Select role</option>
+
+          <option
+            v-for="role in roles"
+            :key="role.id"
+            :value="role.id"
+          >
+            {{ role.name }}
+          </option>
+
+        </select>
+      </div>
+
+    </div>
+
+  
+    <div class="mt-6">
+  <!-- APPROVED -->
+       <button
+          @click="approveRescuer"
+          :disabled="!selectedRoleId"
+          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+        >
+           Assign & Approve
+        </button>
+
+  <!-- DECLINE -->
       <button
         @click="declineRescuer"
-        class="bg-red-500 dark:bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-600 dark:hover:bg-red-700 transition"
+        class="bg-red-500 text-white px-4 py-2 rounded-lg"
       >
         Decline
       </button>
+
     </div>
 
   </div>
 </template>
 
-<script>
+<script> 
+
 export default {
   props: {
-    rescuerId: {
-      type: Number,
-      required: true
-    }
+    userId: Number
   },
 
   data() {
     return {
-      rescuer: {
-        name: '',
-        type: '',
-        email: '',
-        contact: '',
-        station_location: '',
-        status: '',
-        gender: '',
-        is_active: 0
-      }
+      user: {
+        rescuer: {},
+        role: {}
+      },
+      roles: [],
+      selectedRoleId: ''
     }
   },
 
   computed: {
     initials() {
-      if (!this.rescuer.name) return ''
-      return this.rescuer.name
+      if (!this.user.name) return ''
+      return this.user.name
         .split(' ')
         .map(n => n[0])
         .join('')
@@ -140,90 +151,82 @@ export default {
   },
 
   mounted() {
-    console.log('Rescuer ID:', this.rescuerId)
-    this.fetchRescuer()
+    this.fetchUser()
   },
 
   methods: {
 
-    // FETCH DATA
-    fetchRescuer() {
-      axios.get(`/api/rescuers-pending/${this.rescuerId}/manage`)
+    // FETCH USER + ROLES
+    fetchUser() {
+      axios.get(`/api/rescuers-pending/${this.userId}/manage`)
         .then(res => {
-          this.rescuer = res.data
+          this.user = res.data.user
+          this.roles = res.data.roles
+          this.selectedRoleId = res.data.user.role_id || ''
         })
-        .catch(err => {
-          console.error(err)
-          window.Swal.fire('Error', 'Failed to load rescuer', 'error')
+        .catch(() => {
+          Swal.fire('Error', 'Failed to load data', 'error')
         })
     },
 
-    // APPROVE
-    approveRescuer() {
-      window.Swal.fire({
-        title: 'Approve Rescuer?',
-        text: "This will activate the rescuer.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, approve',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
+    // 🚀 APPROVE + ASSIGN ROLE (COMBINED)
+   approveRescuer() {
 
-        if (result.isConfirmed) {
-          axios.patch(`/api/rescuers/${this.rescuerId}/approve`)
-            .then(() => {
+  if (!this.selectedRoleId) {
+    Swal.fire('Error', 'Please select a role', 'error')
+    return
+  }
 
-              window.Swal.fire({
-                icon: 'success',
-                title: 'Approved!',
-                timer: 1500,
-                showConfirmButton: false
-              });
+  Swal.fire({
+    title: 'Approve User?',
+    text: 'This will assign role and approve user',
+    icon: 'question',
+    showCancelButton: true
+  }).then(result => {
 
-              setTimeout(() => {
-                window.location.href = '/rescuers-pending'
-              }, 1500)
+    if (!result.isConfirmed) return
 
-            })
-            .catch(() => {
-              window.Swal.fire('Error', 'Approve failed', 'error')
-            })
-        }
+    axios.patch(`/api/rescuers/${this.userId}/approve`, {
+      role_id: this.selectedRoleId
+    })
+    .then(res => {
 
+      Swal.fire({
+        icon: 'success',
+        title: 'User approved successfully',
+        showConfirmButton: false,
+        timer: 1200
       })
-    },
 
-    //  DECLINE
+      // 🚀 REDIRECT (NO VUE ROUTER)
+      setTimeout(() => {
+        window.location.href = '/rescuers-pending'
+      }, 1200)
+
+    })
+    .catch(() => {
+      Swal.fire('Error', 'Failed to approve user', 'error')
+    })
+
+  })
+},
+
+    // DECLINE
     declineRescuer() {
-      window.Swal.fire({
-        title: 'Decline Rescuer?',
-        text: "This action cannot be undone.",
+
+      Swal.fire({
+        title: 'Decline user?',
         icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, decline',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
+        showCancelButton: true
+      }).then(result => {
 
-        if (result.isConfirmed) {
-          axios.patch(`/api/rescuers/${this.rescuerId}/decline`)
-            .then(() => {
+        if (!result.isConfirmed) return
 
-              window.Swal.fire({
-                icon: 'success',
-                title: 'Declined!',
-                timer: 1500,
-                showConfirmButton: false
-              });
-
-              setTimeout(() => {
-                window.location.href = '/rescuers-pending'
-              }, 1500)
-
-            })
-            .catch(() => {
-              window.Swal.fire('Error', 'Decline failed', 'error')
-            })
-        }
+        axios.patch(`/api/rescuers/${this.userId}/decline`)
+          .then(() => {
+            Swal.fire('Declined', '', 'success')
+            setTimeout(() => location.href = '/rescuers-pending', 1000)
+          })
 
       })
     }

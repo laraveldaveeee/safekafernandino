@@ -40,7 +40,7 @@
               ? 'bg-green-100 text-green-700'
               : 'bg-yellow-100 text-yellow-700 text-gray-900 dark:text-white'"
           >
-            {{ user.rescuer?.status || 'pending' }}
+            {{ user.guardian?.status || 'pending' }}
           </span>
         </div>
 
@@ -58,17 +58,27 @@
 
         <div>
           <label>Contact</label>
-          <p>{{ user.rescuer?.contact || '-' }}</p>
+          <p>{{ user.guardian?.contact || '-' }}</p>
         </div>
 
         <div>
           <label>Address</label>
-          <p>{{ user.rescuer?.station_location || '-' }}</p>
+          <p>{{ user.guardian?.address || '-' }}</p>
         </div>
 
         <div>
           <label>Gender</label>
-          <p>{{ user.rescuer?.gender || '-' }}</p>
+          <p>{{ user.guardian?.gender || '-' }}</p>
+        </div>
+
+        <div>
+          <label>Medical Info</label>
+          <p>{{ user.guardian?.medical_info || '-' }}</p>
+        </div>
+
+        <div>
+          <label>Gesture Data</label>
+          <p>{{ user.guardian?.gesture_data || '-' }}</p>
         </div>
 
       </div>
@@ -78,14 +88,14 @@
   </div>
 </template>
 
-<script> 
+<script>
 
 export default {
 
   data() {
     return {
       user: {
-        rescuer: {},
+        guardian: {},
         role: {}
       },
       loading: false,
@@ -107,7 +117,7 @@ export default {
 
   mounted() {
     const path = window.location.pathname.split('/')
-    this.userId = path[2] // /rescuers/2/view
+    this.userId = path[2] 
 
     console.log("USER ID:", this.userId)
 
@@ -118,7 +128,7 @@ export default {
     fetchUser() {
       this.loading = true
       this.error = false
-      axios.get(`/api/rescuers/${this.userId}/view`)
+      axios.get(`/api/citizens-pending/${this.userId}/manage`)
         .then(res => {
           // FULL USER OBJECT
           this.user = res.data

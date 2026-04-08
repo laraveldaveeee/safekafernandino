@@ -5,12 +5,20 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Guardian;
+use App\User;
 
 class GuardiansController extends Controller
 {
-    public function index()
+    public function pending()
     {
-        return Guardian::all();
+        $user = User::with('role', 'guardian')->whereNotIn('role_id', [1,2,3,4])->get();
+
+        return $user;
+    }
+
+    public function manage(User $user)
+    {
+        return $user->load('guardian');
     }
 
     public function store(Request $request)

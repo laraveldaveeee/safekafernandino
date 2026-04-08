@@ -29,6 +29,11 @@ Route::group(['middleware' => 'auth'], function(){
      
      Route::get('/emergency-types', 'EmergencyTypesController@index')->name('emergency-types.index');
 
+
+     //Citzens
+     Route::get('/citizens-pending', 'CitizensController@pending');
+     Route::get('/citizens-pending/{user}/manage', 'CitizensController@manage');
+
   });
  
 

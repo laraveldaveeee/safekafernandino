@@ -138,12 +138,24 @@
         <span class="ml-auto bg-accent/20 text-accent text-xs px-2 py-0.5 rounded-full">{{ $stats->totalRescuePending() }}</span>
     </a>
 
+  
+
     <!-- Rescuers -->
     <a href="{{ route('rescuers.index') }}"
        class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('rescuers') ? 'active' : '' }}">
         <i class="fas fa-people-arrows w-5 text-success"></i>
         <span class="font-medium">Rescuers</span>
     </a>
+
+         <!-- Citizens Pending -->
+    <a href="{{ url('/citizens-pending') }}"
+       class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition {{ request()->is('citizens-pending') ? 'active' : '' }}">
+        <i class="fas fa-hourglass-half w-5 text-orange-500"></i>
+        <span class="font-medium">Citizens Pending</span>
+        <span class="ml-auto bg-accent/20 text-accent text-xs px-2 py-0.5 rounded-full"></span>
+    </a>
+
+
 
     <!-- Incidents -->
     <a href="{{ url('/incidents') }}"

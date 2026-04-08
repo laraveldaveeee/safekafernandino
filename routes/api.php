@@ -41,6 +41,9 @@ Route::post('/childrens', 'API\ChildrensController@store');
 //Guardian 
 Route::get('/guardians', 'API\GuardiansController@index');
 Route::post('/guardians', 'API\GuardiansController@store');
+Route::get('/citizens-pending', 'API\GuardiansController@pending');
+Route::get('/citizens-pending/{user}/manage', 'API\GuardiansController@manage');
+
 
 //Emergency Types
 Route::get('/emergency-types', 'API\EmergencyTypesController@index');

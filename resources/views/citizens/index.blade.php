@@ -1,13 +1,11 @@
 @extends('layouts.backend') 
 @section('content') 
-    
     <!-- ================= MAIN CONTENT ================= -->
-    <main class="flex-1 overflow-y-auto p-5 lg:p-7 transition-all duration-300">
-      
+    <main class="flex-1 overflow-y-auto p-5 lg:p-7 transition-all duration-300"> 
       <!-- Top header bar with page title & theme toggle (secondary) -->
       <div class="flex justify-between items-center mb-7 pb-2 border-b border-gray-200 dark:border-gray-800">
         <div>
-          <h2 id="pageTitle" class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Citizens Pending</h2>
+          <h2 id="pageTitle" class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white">Citizens</h2>
         </div>
         <div class="flex items-center gap-3">
           <div class="relative">
@@ -24,11 +22,9 @@
       </div>
 
       <div id="app">
-          <citizens-pending></citizens-pending>
+          <citizens></citizens>
       </div>
- 
- 
-
+  
 </main>
 </div>
 @endsection

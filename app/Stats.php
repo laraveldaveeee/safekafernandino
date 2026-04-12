@@ -7,4 +7,9 @@ class Stats extends Model
 	{
 		return Rescuer::where('status', 'pending')->count(); 
 	}
+
+	public function totalCitizenPending()
+	{
+		return Guardian::where('status', 'pending')->count(); 
+	}
 }

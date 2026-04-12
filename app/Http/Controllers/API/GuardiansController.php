@@ -9,9 +9,29 @@ use App\User;
 
 class GuardiansController extends Controller
 {
+
+    public function index()
+    {
+        $user = User::with('role', 'guardian')
+                    ->where('status', 'approved')
+                    ->whereNotIn('role_id', [1,2,3,4])
+                    ->get();
+
+        return $user;
+    }
+
+    public function profile(User $user)
+    {
+        $user->load('guardian');
+        return $user;
+    }
+
     public function pending()
     {
-        $user = User::with('role', 'guardian')->whereNotIn('role_id', [1,2,3,4])->get();
+        $user = User::with('role', 'guardian')
+                    ->where('status', 'pending')
+                    ->whereNotIn('role_id', [1,2,3,4])
+                    ->get();
 
         return $user;
     }
@@ -19,6 +39,36 @@ class GuardiansController extends Controller
     public function manage(User $user)
     {
         return $user->load('guardian');
+    }
+
+    public function approve(User $user, Request $request)
+    { 
+        $user->update([
+            'status' => 'approved',
+        ]);
+
+        $user->guardian()->update([
+            'status'    => 'approved'
+        ]);
+
+        return response()->json([
+            'message' => 'Role assigned and user approved successfully',
+            'user' => $user->load('guardian')
+        ]);
+    }
+
+   
+    public function decline(User $user)
+    {
+        $user->guardian()->update([
+            'status' => 'declined',
+        ]);
+
+        $user->update([
+            'status' => 'declined',
+        ]);
+
+        return response()->json(['message' => 'Declined']);
     }
 
     public function store(Request $request)

@@ -11,7 +11,8 @@ Route::delete('/users/{user}', 'API\UsersController@destroy');
 
 
 //Sign Up Rescuers
-Route::post('/signup', 'API\SignUpRescuersController@signup');
+Route::post('/rescuer/signup', 'API\SignUpRescuersController@signup');
+Route::post('/citizen/signup', 'API\SignUpCitizensController@signup');
 
 //Pending Rescuer
 Route::get('/rescuers-pending', 'API\PendingRescuerController@index');
@@ -38,11 +39,15 @@ Route::delete('/evacuation-points/{id}',  'API\EvacuationPointsController@destro
 Route::get('/childrens', 'API\ChildrensController@index');
 Route::post('/childrens', 'API\ChildrensController@store');
 
-//Guardian 
-Route::get('/guardians', 'API\GuardiansController@index');
-Route::post('/guardians', 'API\GuardiansController@store');
+//Guardian / Citizens
+Route::get('/citizens', 'API\GuardiansController@index');
+Route::get('/citizens/{user}/profile', 'API\GuardiansController@profile');
+
+Route::post('/citizens', 'API\GuardiansController@store');
 Route::get('/citizens-pending', 'API\GuardiansController@pending');
 Route::get('/citizens-pending/{user}/manage', 'API\GuardiansController@manage');
+Route::post('/citizens/{user}/approve', 'API\GuardiansController@approve');
+Route::post('/citizens/{user}/decline', 'API\GuardiansController@decline');
 
 
 //Emergency Types

@@ -49,6 +49,10 @@ class PendingRescuerController extends Controller
             'is_active' => 0
         ]);
 
+        $user->update([
+            'status'    => 'declined'
+        ]);
+
         return response()->json(['message' => 'Declined']);
     }
 }

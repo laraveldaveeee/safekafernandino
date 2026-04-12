@@ -11,7 +11,10 @@ class UsersController extends Controller
 {
     public function index()
     {
-        return User::with('admin')->get();
+        return User::with('admin')
+                    ->whereNotIn('role_id', 
+                        [2,3,4,5,0]
+                    )->get();
     }
 
     public function store(Request $request)

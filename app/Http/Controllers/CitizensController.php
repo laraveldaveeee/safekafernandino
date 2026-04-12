@@ -15,4 +15,14 @@ class CitizensController extends Controller
     {
         return view('citizens-pending.manage', compact('user'));
     }
+
+    public function index()
+    {
+        return view('citizens.index');
+    }
+
+    public function profile(User $user)
+    {
+        return view('citizens.show', compact('user'));
+    }
 }

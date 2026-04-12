@@ -1,3 +1,4 @@
+
 <template>
   <div class="lg:col-span-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden transition-colors duration-300">
 
@@ -16,7 +17,7 @@
         </div>
 
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Citizens Pending
+          Citizens list
         </h3>
 
       </div>
@@ -31,13 +32,12 @@
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-16">
               ID
-            </th>
-        
+            </th> 
             <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300">
               Name
             </th>
 
-             <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300">
               Address
             </th>
             <th class="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500 dark:text-gray-300 w-40">
@@ -59,7 +59,7 @@
 
             <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-16">{{ user.id }}</td>
             <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate">{{ user.name  }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate">{{ user.guardian?.address }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate">{{ user.guardian?.address  }}</td>
             <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40">{{ user.guardian?.mobile }}</td>
 
             <td class="px-6 py-4 w-32">
@@ -72,7 +72,7 @@
 
             <!-- ACTION -->
             <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40 text-right">
-              <a :href="'/citizens-pending/' + user.id + '/manage'"
+              <a :href="'/citizens/' + user.id + '/profile'"
                  class="inline-flex items-center gap-1 px-3 py-1.5 
                         bg-blue-50 text-blue-700 
                         dark:bg-blue-900 dark:text-blue-300
@@ -86,7 +86,7 @@
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
 
-                <span>Manage</span>
+                <span>View</span>
               </a>
             </td>
 
@@ -121,7 +121,7 @@ export default {
 
   methods: {
     fetchGuardians() {
-      axios.get('/api/citizens-pending')
+      axios.get('/api/citizens')
         .then(response => {
           this.guardians = response.data;
         })

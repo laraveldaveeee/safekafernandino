@@ -17,7 +17,7 @@
       <!-- TOP -->
       <div class="flex items-center space-x-6">
 
-        <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600 ">
+        <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-600">
           {{ initials }}
         </div>
 
@@ -25,23 +25,20 @@
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
             {{ user.name }}
           </h2>
-
-          <!-- ROLE -->
-          <p class="text-gray-500 text-gray-900 dark:text-white">
-            Role: {{ user.role?.name || '-' }}
-          </p>
-
-         
+ 
 
           <!-- STATUS -->
           <span
             class="inline-block mt-2 px-3 py-1 text-sm rounded-full"
-            :class="user.rescuer?.status === 'approved'
+            :class="user.guardian?.status === 'approved'
               ? 'bg-green-100 text-green-700'
-              : 'bg-yellow-100 text-yellow-700 text-gray-900 dark:text-white'"
+              : user.guardian?.status === 'declined'
+              ? 'bg-red-100 text-red-700'
+              : 'bg-yellow-100 text-yellow-700'"
           >
             {{ user.guardian?.status || 'pending' }}
           </span>
+
         </div>
 
       </div>
@@ -80,15 +77,20 @@
           <label>Gesture Data</label>
           <p>{{ user.guardian?.gesture_data || '-' }}</p>
         </div>
+        <div>
+          <label>ID Verified</label>
+          <p>{{ user.is_id_verified?.is_id_verified || '-' }}</p>
+        </div>
 
       </div>
+
 
     </div>
 
   </div>
 </template>
 
-<script>
+<script> 
 
 export default {
 
@@ -117,20 +119,19 @@ export default {
 
   mounted() {
     const path = window.location.pathname.split('/')
-    this.userId = path[2] 
-
-    console.log("USER ID:", this.userId)
-
+    this.userId = path[2]
     this.fetchUser()
   },
 
   methods: {
+
+    // GET USER
     fetchUser() {
       this.loading = true
       this.error = false
-      axios.get(`/api/citizens-pending/${this.userId}/manage`)
+
+      axios.get(`/api/citizens/${this.userId}/profile`)
         .then(res => {
-          // FULL USER OBJECT
           this.user = res.data
         })
         .catch(err => {
@@ -140,7 +141,7 @@ export default {
         .finally(() => {
           this.loading = false
         })
-    }
+    },
 
   }
 }

@@ -45,6 +45,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function isAdmin()
+    {
+        return auth()->check() && auth()->user()->role->name == 'ADMINISTRATOR';
+    }
+
+
     public function admin()
     {
         return $this->belongsTo(Admin::class);
@@ -63,5 +69,10 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function hasRole($role)
+    {
+        return in_array($this->role->name, $role);
     }
 }

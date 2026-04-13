@@ -16,7 +16,9 @@ Vue.component('citizens-pending', require('./components/CitizensPendingComponent
 Vue.component('citizens-pending-manage', require('./components/ManageCitizensProfileComponent.vue').default);
 Vue.component('citizens', require('./components/CitizensComponent.vue').default);
 Vue.component('citizens-profile', require('./components/CitizensProfileComponent.vue').default);
+
 Vue.component('sign-up-guardian', require('./components/SignupGuardianComponent.vue').default);
+Vue.component('sign-up-rescuer', require('./components/SignupRescuerComponent.vue').default);
 
 // Create Vue instance
 const app = new Vue({

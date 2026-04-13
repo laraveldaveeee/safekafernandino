@@ -6,8 +6,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-//Testing Signup API
-// Route::get('/sign-up', 'SignupController@index');
+//Testing Signup API For Guardian / Citizens
+// Route::get('/sign-up', 'SignupController@guardian');
+
+//Testing Signup API for Rescuer
+Route::get('/signup', 'SignupController@rescuer');
+
+
 Auth::routes();  
 Route::group(['middleware' => 'auth'], function(){ 
     Route::middleware('role:ADMINISTRATOR')->group(function () {

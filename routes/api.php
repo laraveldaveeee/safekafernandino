@@ -12,7 +12,9 @@ Route::delete('/users/{user}', 'API\UsersController@destroy');
 
 //Sign Up Rescuers
 Route::post('/rescuer/signup', 'API\SignUpRescuersController@signup');
+
 Route::post('/citizen/signup', 'API\SignUpCitizensController@signup');
+Route::get('/emergency-types', 'API\SignUpCitizensController@index');
 
 //Pending Rescuer
 Route::get('/rescuers-pending', 'API\PendingRescuerController@index');
@@ -43,7 +45,8 @@ Route::post('/childrens', 'API\ChildrensController@store');
 Route::get('/citizens', 'API\GuardiansController@index');
 Route::get('/citizens/{user}/profile', 'API\GuardiansController@profile');
 
-Route::post('/citizens', 'API\GuardiansController@store');
+//Route::post('/citizens', 'API\GuardiansController@store');
+
 Route::get('/citizens-pending', 'API\GuardiansController@pending');
 Route::get('/citizens-pending/{user}/manage', 'API\GuardiansController@manage');
 Route::post('/citizens/{user}/approve', 'API\GuardiansController@approve');

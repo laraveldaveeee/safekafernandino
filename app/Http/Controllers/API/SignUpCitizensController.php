@@ -42,18 +42,20 @@ class SignUpCitizensController extends Controller
     //     ]);
     // }
 
+    public function index()
+    {
+        return EmergencyType::all();
+    }
     public function signup(Request $request)
     {
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-
             'gender' => 'nullable',
             'mobile' => 'nullable',
             'birthdate' => 'nullable|date',
             'address' => 'nullable',
-
             // file validation
             'is_id_verified' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'gesture_data' => 'nullable|file|max:2048',
@@ -80,15 +82,13 @@ class SignUpCitizensController extends Controller
             'status'  => 'pending'
         ]);
 
-
         // FILE UPLOADS
         if ($request->hasFile('is_id_verified')) {
             $guardian->is_id_verified = $request->file('is_id_verified')->store('uploads/ids', 'public');
         }
         if ($request->hasFile('gesture_data')) {
             $guardian->gesture_data = $request->file('gesture_data')->store('uploads/gesture', 'public');
-        }
-
+        } 
         if ($request->hasFile('medical_info')) {
             $guardian->medical_info = $request->file('medical_info')->store('uploads/medical', 'public');
         }

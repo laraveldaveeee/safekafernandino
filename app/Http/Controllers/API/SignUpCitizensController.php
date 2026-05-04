@@ -42,10 +42,7 @@ class SignUpCitizensController extends Controller
     //     ]);
     // }
 
-    public function index()
-    {
-        return EmergencyType::all();
-    }
+   
     public function signup(Request $request)
     {
         $request->validate([

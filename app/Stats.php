@@ -5,7 +5,7 @@ class Stats extends Model
 {
 	public function totalRescuePending()
 	{
-		return Rescuer::where('status', 'pending')->count(); 
+		return User::where('status', 'pending')->where('role_id', [0])->count(); 
 	}
 
 	public function totalCitizenPending()

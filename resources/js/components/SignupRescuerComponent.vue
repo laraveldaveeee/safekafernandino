@@ -25,7 +25,7 @@
       <!-- EMERGENCY TYPE -->
       <div class="mb-3">
         <label>Emergency Type</label>
-        <select v-model="form.type" class="input" required>
+        <select v-model="form.emergency_id" class="input" required>
           <option value="">Select Emergency</option>
           <option 
             v-for="item in emergencyTypes" 
@@ -115,7 +115,7 @@ export default {
         name: "",
         email: "",
         password: "",
-        type: "",
+        emergency_id: "", // ✅ FIXED
         gender: "",
         mobile: "",
         birthdate: "",
@@ -134,7 +134,6 @@ export default {
   },
 
   methods: {
-    // FETCH TYPES SELECT
     async getEmergencyTypes() {
       try {
         let res = await axios.get("/api/emergency-types");
@@ -144,7 +143,6 @@ export default {
       }
     },
 
-    // LOCATION
     getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -152,25 +150,15 @@ export default {
             this.form.latitude = position.coords.latitude;
             this.form.longitude = position.coords.longitude;
           },
-          (error) => {
-            if (error.code === 1) {
-              alert("Permission denied. Please allow location.");
-            } else {
-              alert("Location error");
-            }
-          }
+          () => alert("Location error")
         );
-      } else {
-        alert("Geolocation not supported");
       }
     },
 
-    //  FILE
     handleFileUpload(event) {
       this.form.is_id_verified = event.target.files[0];
     },
 
-    // SUBMIT
     async submitForm() {
       try {
         let formData = new FormData();
@@ -180,9 +168,7 @@ export default {
         }
 
         let res = await axios.post("/api/rescuer/signup", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
+          headers: { "Content-Type": "multipart/form-data" }
         });
 
         alert("Success!");

@@ -30,7 +30,7 @@ class GuardiansController extends Controller
     {
         $user = User::with('role', 'guardian')
                     ->where('status', 'pending')
-                    ->whereNotIn('role_id', [1,2,3,4])
+                    ->whereNotIn('role_id', [0,1,2,3,4])
                     ->get();
 
         return $user;

@@ -11,7 +11,11 @@ class PendingRescuerController extends Controller
 {
     public function index()
     {
-        return User::with('rescuer', 'role')->where('status', 'pending')->get();
+        return User::with('rescuer', 'role')
+                    ->where('status', 'pending')
+                    ->whereNotNull('role_id') 
+                    ->whereNotIn('role_id', [1,2,3,5])
+                    ->get();
     }
 
     public function manage(User $user)

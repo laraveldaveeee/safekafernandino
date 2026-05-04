@@ -12,9 +12,13 @@ Route::delete('/users/{user}', 'API\UsersController@destroy');
 
 //Sign Up Rescuers
 Route::post('/rescuer/signup', 'API\SignUpRescuersController@signup');
+//FETCH DATA SELECTED TYPE
+Route::get('/emergency-types', 'API\SignUpRescuersController@index');
+
+
+//Citizens Ship
 
 Route::post('/citizen/signup', 'API\SignUpCitizensController@signup');
-Route::get('/emergency-types', 'API\SignUpCitizensController@index');
 
 //Pending Rescuer
 Route::get('/rescuers-pending', 'API\PendingRescuerController@index');

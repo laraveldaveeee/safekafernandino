@@ -2912,7 +2912,8 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         name: "",
         email: "",
         password: "",
-        type: "",
+        emergency_id: "",
+        // ✅ FIXED
         gender: "",
         mobile: "",
         birthdate: "",
@@ -2929,7 +2930,6 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
     this.getEmergencyTypes();
   },
   methods: {
-    // FETCH TYPES SELECT
     getEmergencyTypes: function getEmergencyTypes() {
       var _this = this;
       return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
@@ -2955,29 +2955,20 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
         }, _callee, null, [[0, 2]]);
       }))();
     },
-    // LOCATION
     getLocation: function getLocation() {
       var _this2 = this;
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
           _this2.form.latitude = position.coords.latitude;
           _this2.form.longitude = position.coords.longitude;
-        }, function (error) {
-          if (error.code === 1) {
-            alert("Permission denied. Please allow location.");
-          } else {
-            alert("Location error");
-          }
+        }, function () {
+          return alert("Location error");
         });
-      } else {
-        alert("Geolocation not supported");
       }
     },
-    //  FILE
     handleFileUpload: function handleFileUpload(event) {
       this.form.is_id_verified = event.target.files[0];
     },
-    // SUBMIT
     submitForm: function submitForm() {
       var _this3 = this;
       return _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
@@ -4231,6 +4222,7 @@ var render = function render() {
   }, [_vm._m(0), _vm._v(" "), _c("tbody", {
     staticClass: "divide-y divide-gray-200 dark:divide-gray-700"
   }, [_vm._l(_vm.rescuers, function (user) {
+    var _user$role, _user$rescuer;
     return _c("tr", {
       key: user.id,
       staticClass: "hover:bg-gray-50 dark:hover:bg-gray-700 transition"
@@ -4238,11 +4230,11 @@ var render = function render() {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-16"
     }, [_vm._v(_vm._s(user.id))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-32"
-    }, [_vm._v(_vm._s(user.role.name))]), _vm._v(" "), _c("td", {
+    }, [_vm._v(_vm._s((_user$role = user.role) === null || _user$role === void 0 ? void 0 : _user$role.name))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate"
     }, [_vm._v(_vm._s(user.name))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40"
-    }, [_vm._v(_vm._s(user.rescuer.contact))]), _vm._v(" "), _c("td", {
+    }, [_vm._v(_vm._s((_user$rescuer = user.rescuer) === null || _user$rescuer === void 0 ? void 0 : _user$rescuer.contact))]), _vm._v(" "), _c("td", {
       staticClass: "px-6 py-4 w-32"
     }, [_c("span", {
       staticClass: "px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
@@ -4791,8 +4783,8 @@ var render = function render() {
     directives: [{
       name: "model",
       rawName: "v-model",
-      value: _vm.form.type,
-      expression: "form.type"
+      value: _vm.form.emergency_id,
+      expression: "form.emergency_id"
     }],
     staticClass: "input",
     attrs: {
@@ -4806,7 +4798,7 @@ var render = function render() {
           var val = "_value" in o ? o._value : o.value;
           return val;
         });
-        _vm.$set(_vm.form, "type", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
+        _vm.$set(_vm.form, "emergency_id", $event.target.multiple ? $$selectedVal : $$selectedVal[0]);
       }
     }
   }, [_c("option", {

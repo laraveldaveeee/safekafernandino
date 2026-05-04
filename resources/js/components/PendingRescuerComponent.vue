@@ -56,9 +56,9 @@
               class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
 
             <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-16">{{ user.id }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-32">{{ user.role.name }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-32">{{ user.role?.name }}</td>
             <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 truncate">{{ user.name }}</td>
-            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40">{{ user.rescuer.contact }}</td>
+            <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-100 w-40">{{ user.rescuer?.contact }}</td>
 
             <td class="px-6 py-4 w-32">
               <span class="px-2 py-1 rounded text-xs font-medium
